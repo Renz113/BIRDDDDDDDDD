@@ -12,7 +12,7 @@ Open `index.html` directly, or serve the folder locally.
 If you prefer serving the folder instead of opening the file directly, you can run:
 
 ```bash
-python -m http.server
+python -m http.server --bind 127.0.0.1
 ```
 
 Then open `http://localhost:8000`.

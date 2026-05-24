@@ -1,105 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#17324a">
-  <title>Flappy Bird Club Offline</title>
+  <title>Offline - Flappy Bird Club</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
-    :root {
-      --sky-top: #91dcff;
-      --sky-bottom: #fff5db;
-      --card: rgba(255, 252, 245, 0.94);
-      --text: #1d3148;
-      --muted: #5c7086;
-      --accent: #ef7d21;
-      --accent-shadow: #b55408;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      font-family: "Aptos", "Trebuchet MS", "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top, rgba(255, 225, 151, 0.3), transparent 24%),
-        linear-gradient(180deg, var(--sky-top) 0%, #dff4ff 45%, var(--sky-bottom) 100%);
-    }
-
-    .panel {
-      width: min(100%, 520px);
-      padding: 32px 26px;
-      border-radius: 30px;
-      background: var(--card);
-      box-shadow: 0 24px 72px rgba(14, 30, 44, 0.18);
+    .offline-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       text-align: center;
-    }
-
-    h1 {
-      margin: 0 0 12px;
-      font-family: "Iowan Old Style", Georgia, serif;
-      font-size: clamp(2rem, 7vw, 3rem);
-      line-height: 0.95;
-    }
-
-    p {
-      margin: 0;
-      line-height: 1.6;
-      color: var(--muted);
-    }
-
-    .bird {
-      width: 92px;
-      height: 92px;
-      margin: 0 auto 20px;
-      display: block;
-    }
-
-    .actions {
-      display: grid;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 14px 18px;
-      border-radius: 18px;
-      color: #fff;
-      text-decoration: none;
-      font-weight: 700;
-      background: linear-gradient(180deg, #ff9f46 0%, var(--accent) 100%);
-      box-shadow: 0 8px 0 var(--accent-shadow);
-    }
-
-    .hint {
-      margin-top: 18px;
-      font-size: 0.95rem;
+      padding: 20px;
     }
   </style>
 </head>
+
 <body>
-  <main class="panel">
-    <svg class="bird" viewBox="0 0 120 120" aria-hidden="true">
-      <ellipse cx="58" cy="60" rx="34" ry="25" fill="#f9dc50"></ellipse>
-      <ellipse cx="49" cy="69" rx="16" ry="10" fill="#f4b43e"></ellipse>
-      <polygon points="81,57 108,64 81,76" fill="#f17f22"></polygon>
-      <circle cx="67" cy="52" r="8" fill="#fff"></circle>
-      <circle cx="70" cy="52" r="3" fill="#1f1f1f"></circle>
-    </svg>
-    <h1>You&rsquo;re Offline</h1>
-    <p>Flappy Bird Club could not refresh from the network right now. If you have opened the game before, go back and try again once your connection returns.</p>
-    <div class="actions">
-      <a class="button" href="./">Try The Game Again</a>
-    </div>
-    <p class="hint">Tip: installing the app helps it load faster and feel more native on mobile.</p>
-  </main>
+  <div class="page-shell offline-container">
+    <section class="card banner-card">
+      <h1>You're Offline</h1>
+      <p>Flappy Bird Club is ready for repeat visits, but it looks like you aren't connected to the internet right now.
+      </p>
+      <p>Once you're back online, you can sync your scores and see the leaderboard.</p>
+      <button class="primary-button" onclick="window.location.reload()">Try Again</button>
+    </section>
+  </div>
 </body>
+
 </html>

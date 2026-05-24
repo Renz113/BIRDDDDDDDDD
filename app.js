@@ -367,7 +367,7 @@ function renderInstallBanner() {
     return;
   }
 
-  ui.installBannerHost.textContent = window.location.host || "Open from localhost or HTTPS";
+  ui.installBannerHost.textContent = window.location.hostname === "localhost" ? "localhost" : window.location.hostname || "Web App";
   ui.installBannerButton.textContent = currentInstallActionLabel();
   ui.installBannerButton.disabled = isStandaloneMode() || installState.installed;
 }
@@ -413,6 +413,11 @@ function setMessage(message, tone = "info") {
 function setMode(mode) {
   state.mode = mode;
   ui.modeBadge.textContent = formatMode(mode);
+
+  // Update mobile status bar color to match the sky when playing
+  const themeColor = mode === "playing" ? "#87d8ff" : "#17324a";
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", themeColor);
+
   document.body.dataset.mode = mode;
   renderControls();
 }
@@ -1092,6 +1097,11 @@ window.addEventListener("fullscreenchange", () => {
     renderAll();
   }
 });
+
+// Check if the app is already installed on load
+if (isStandaloneMode()) {
+  installState.installed = true;
+}
 
 window.addEventListener("resize", () => {
   if (viewState.immersive && !isLikelyMobileDevice()) {
