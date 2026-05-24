@@ -40,6 +40,14 @@ body {
     linear-gradient(180deg, #8fd8ff 0%, #d9f2ff 42%, #fff8e2 100%);
 }
 
+body[data-install-gate="visible"] {
+  overflow: hidden;
+}
+
+body[data-mobile-play="immersive"] {
+  overflow: hidden;
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -80,6 +88,55 @@ body::before {
   width: min(1320px, calc(100% - 32px));
   margin: 0 auto;
   padding: 20px 0 34px;
+}
+
+.install-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 24, 37, 0.58);
+  backdrop-filter: blur(12px);
+}
+
+.install-gate-panel {
+  width: min(100%, 460px);
+  padding: 28px 24px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 251, 243, 0.92)),
+    linear-gradient(180deg, rgba(36, 83, 109, 0.06), rgba(239, 125, 33, 0.05));
+  box-shadow: var(--shadow-strong);
+}
+
+.install-gate-tag {
+  margin: 0 0 10px;
+  color: #496884;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.install-gate-panel h2 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  line-height: 0.98;
+}
+
+.install-gate-text {
+  margin-top: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.install-gate-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
 }
 
 .hero {
@@ -167,6 +224,13 @@ h1 {
   margin-top: 4px;
   font-size: 1.08rem;
   color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.account-strip {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 
 .layout {
@@ -215,12 +279,14 @@ h1 {
   margin: 0;
   line-height: 1.55;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .auth-tabs {
   display: flex;
   gap: 10px;
   margin-bottom: 16px;
+  max-width: 320px;
 }
 
 .auth-tab,
@@ -229,6 +295,9 @@ h1 {
   border: 0;
   cursor: pointer;
   font: inherit;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
   transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease, background 140ms ease;
 }
 
@@ -249,12 +318,15 @@ h1 {
 
 .auth-form {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 14px;
+  align-items: end;
 }
 
 .field {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .field span {
@@ -272,6 +344,10 @@ h1 {
   color: var(--text);
   outline: none;
   box-shadow: inset 0 1px 2px rgba(18, 40, 63, 0.05);
+}
+
+.auth-submit {
+  min-width: 168px;
 }
 
 .field input:focus {
@@ -325,6 +401,11 @@ h1 {
   background: linear-gradient(180deg, rgba(255, 250, 242, 0.97) 0%, rgba(250, 244, 231, 0.94) 100%);
 }
 
+.player-card {
+  display: grid;
+  gap: 16px;
+}
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -369,7 +450,7 @@ h1 {
 
 .leaderboard li {
   display: grid;
-  grid-template-columns: 32px 1fr auto;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
@@ -390,8 +471,10 @@ h1 {
 }
 
 .leaderboard-name {
+  min-width: 0;
   font-weight: 700;
   color: #223045;
+  overflow-wrap: anywhere;
 }
 
 .leaderboard-score {
@@ -440,9 +523,14 @@ h1 {
   min-width: 150px;
 }
 
+.utility-button {
+  min-width: 124px;
+}
+
 .install-hint {
   margin-top: 12px;
   font-size: 0.95rem;
+  max-width: 62ch;
 }
 
 .canvas-frame {
@@ -485,6 +573,89 @@ canvas:focus-visible {
   background: rgba(255, 255, 255, 0.74);
   border: 1px solid rgba(121, 87, 47, 0.1);
   font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.ghost-button {
+  color: var(--secondary);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: inset 0 0 0 1px rgba(49, 87, 125, 0.16);
+}
+
+body[data-mobile-play="immersive"] .page-shell {
+  width: 100%;
+  padding: 0;
+}
+
+body[data-mobile-play="immersive"] .hero,
+body[data-mobile-play="immersive"] .account-strip,
+body[data-mobile-play="immersive"] .sidebar,
+body[data-mobile-play="immersive"] .banner-card {
+  display: none !important;
+}
+
+body[data-mobile-play="immersive"] .layout {
+  display: block;
+}
+
+body[data-mobile-play="immersive"] .game-column {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  padding:
+    calc(10px + env(safe-area-inset-top))
+    10px
+    calc(10px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #8fd8ff 0%, #d9f2ff 42%, #fff8e2 100%);
+}
+
+body[data-mobile-play="immersive"] .canvas-card {
+  min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  padding: 10px;
+  border-radius: 24px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-content: start;
+}
+
+body[data-mobile-play="immersive"] .canvas-toolbar {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 8px;
+}
+
+body[data-mobile-play="immersive"] .canvas-head {
+  gap: 8px;
+}
+
+body[data-mobile-play="immersive"] .canvas-actions {
+  justify-content: flex-start;
+}
+
+body[data-mobile-play="immersive"] .canvas-actions .primary-button,
+body[data-mobile-play="immersive"] .canvas-actions .secondary-button {
+  min-width: 0;
+}
+
+body[data-mobile-play="immersive"] .install-hint {
+  display: none;
+}
+
+body[data-mobile-play="immersive"][data-mode="playing"] #startButton,
+body[data-mobile-play="immersive"][data-mode="playing"] #installButton {
+  display: none !important;
+}
+
+body[data-mobile-play="immersive"] .canvas-frame {
+  margin-top: 0;
+  min-height: 0;
+  height: 100%;
+  padding: 10px;
+}
+
+body[data-mobile-play="immersive"] canvas {
+  width: min(100%, calc((100dvh - 170px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 0.6667));
+  max-height: calc(100dvh - 170px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
 }
 
 .message-banner[data-tone="success"] {
@@ -537,6 +708,15 @@ code {
   .status-strip {
     justify-content: flex-start;
   }
+
+  .auth-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .auth-submit {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
 }
 
 @media (max-width: 960px) {
@@ -578,6 +758,18 @@ code {
     min-width: 96px;
   }
 
+  .auth-tabs {
+    max-width: none;
+  }
+
+  .auth-form {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-submit {
+    grid-column: auto;
+  }
+
   .canvas-toolbar {
     flex-direction: column;
   }
@@ -601,6 +793,38 @@ code {
 
   body[data-mode="playing"] .lede {
     display: none;
+  }
+
+  .install-gate-panel {
+    padding: 24px 18px;
+    border-radius: 26px;
+  }
+
+  body[data-mobile-play="immersive"] .game-column {
+    padding:
+      calc(8px + env(safe-area-inset-top))
+      8px
+      calc(8px + env(safe-area-inset-bottom));
+  }
+
+  body[data-mobile-play="immersive"] .canvas-card {
+    min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    border-radius: 22px;
+    padding: 8px;
+  }
+
+  body[data-mobile-play="immersive"] .canvas-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  body[data-mobile-play="immersive"] .canvas-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body[data-mobile-play="immersive"] canvas {
+    width: min(100%, calc((100dvh - 188px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * 0.6667));
+    max-height: calc(100dvh - 188px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   }
 }
 

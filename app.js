@@ -26,10 +26,15 @@ const ui = {
   messageBanner: document.getElementById("messageBanner"),
   startButton: document.getElementById("startButton"),
   logoutButton: document.getElementById("logoutButton"),
+  exitViewButton: document.getElementById("exitViewButton"),
   gameColumn: document.getElementById("gameColumn"),
   gameFrame: document.getElementById("gameFrame"),
   installButton: document.getElementById("installButton"),
   installHint: document.getElementById("installHint"),
+  installGate: document.getElementById("installGate"),
+  installGateText: document.getElementById("installGateText"),
+  installGateButton: document.getElementById("installGateButton"),
+  continueWebButton: document.getElementById("continueWebButton"),
 };
 
 const state = {
@@ -47,6 +52,11 @@ const storageState = {
 
 const installState = {
   deferredPrompt: null,
+  dismissed: false,
+};
+
+const viewState = {
+  immersive: false,
 };
 
 const GAME = {
@@ -236,6 +246,58 @@ function canSuggestIosInstall() {
   return isIos && isSafari;
 }
 
+function isLikelyMobileDevice() {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return /android|iphone|ipad|ipod/.test(userAgent) || window.matchMedia("(max-width: 820px)").matches;
+}
+
+function shouldShowInstallGate() {
+  return !isStandaloneMode() && !installState.dismissed && isLikelyMobileDevice();
+}
+
+function shouldUseImmersivePlayView() {
+  return isLikelyMobileDevice() && !shouldShowInstallGate();
+}
+
+function syncViewState() {
+  document.body.dataset.mobilePlay = viewState.immersive ? "immersive" : "page";
+}
+
+function setImmersiveView(active) {
+  viewState.immersive = active;
+  syncViewState();
+}
+
+async function requestFullscreenView() {
+  if (document.fullscreenElement || typeof ui.gameColumn.requestFullscreen !== "function") {
+    return;
+  }
+
+  try {
+    await ui.gameColumn.requestFullscreen({ navigationUI: "hide" });
+  } catch (error) {
+    // Some mobile browsers block fullscreen for arbitrary elements, so we keep the CSS immersive view.
+  }
+}
+
+function enterMobilePlayView() {
+  if (!shouldUseImmersivePlayView()) {
+    return;
+  }
+
+  setImmersiveView(true);
+  requestFullscreenView();
+}
+
+function exitMobilePlayView() {
+  setImmersiveView(false);
+  if (document.fullscreenElement && typeof document.exitFullscreen === "function") {
+    document.exitFullscreen().catch(() => {
+      syncViewState();
+    });
+  }
+}
+
 function focusGameArea() {
   const top = ui.gameColumn.getBoundingClientRect().top;
   const shouldScroll = window.innerWidth <= 960 || top < 0 || top > 80;
@@ -255,6 +317,8 @@ function renderInstallCta() {
     ui.installButton.classList.add("is-hidden");
     ui.installButton.disabled = true;
     ui.installHint.textContent = "Installed app mode is ready for quick mobile play.";
+    ui.installGateButton.textContent = "Installed";
+    ui.installGateText.textContent = "Flappy Bird Club is already running like an installed app.";
     return;
   }
 
@@ -263,6 +327,8 @@ function renderInstallCta() {
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Install App";
     ui.installHint.textContent = "Install this app for one-tap access from your home screen.";
+    ui.installGateButton.textContent = "Install App";
+    ui.installGateText.textContent = "Install Flappy Bird Club first for the cleanest mobile app experience.";
     return;
   }
 
@@ -271,12 +337,26 @@ function renderInstallCta() {
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Add To Home";
     ui.installHint.textContent = "On iPhone or iPad, tap Share and then Add to Home Screen.";
+    ui.installGateButton.textContent = "How To Install";
+    ui.installGateText.textContent = "For iPhone or iPad, use Share and then Add to Home Screen before playing.";
     return;
   }
 
   ui.installButton.classList.add("is-hidden");
   ui.installButton.disabled = true;
-  ui.installHint.textContent = "Install becomes available from a supported secure link on mobile.";
+  ui.installHint.textContent = "Install is available from a secure mobile link when supported.";
+  ui.installGateButton.textContent = "Install Info";
+  ui.installGateText.textContent = "This device may need a supported secure link before the install option appears.";
+}
+
+function renderInstallGate() {
+  const visible = shouldShowInstallGate();
+  ui.installGate.classList.toggle("is-hidden", !visible);
+  document.body.dataset.installGate = visible ? "visible" : "hidden";
+
+  if (visible && viewState.immersive) {
+    exitMobilePlayView();
+  }
 }
 
 function setMessage(message, tone = "info") {
@@ -385,16 +465,19 @@ function renderControls() {
   }
 
   ui.logoutButton.disabled = !canPlay || state.mode === "playing";
+  ui.exitViewButton.classList.toggle("is-hidden", !viewState.immersive);
   ui.scoreValue.textContent = String(game.score);
   renderInstallCta();
 }
 
 function renderAll() {
+  syncViewState();
   document.body.dataset.mode = state.mode;
   renderAuthMode();
   renderPlayerCard();
   renderLeaderboard();
   renderControls();
+  renderInstallGate();
 }
 
 function switchAuthMode(mode) {
@@ -419,6 +502,7 @@ function logout() {
   ui.usernameInput.value = "";
   ui.passwordInput.value = "";
   resetGame(false);
+  exitMobilePlayView();
   setMode("auth");
   setMessage("Logged out. Sign in with any local player.", "info");
   renderAll();
@@ -463,11 +547,50 @@ function startGame() {
     return;
   }
 
+  enterMobilePlayView();
   resetGame();
   setMode("playing");
   setMessage("Flap with Space, Enter, click, or tap.", "info");
   renderAll();
   requestAnimationFrame(focusGameArea);
+}
+
+async function handleInstallRequest() {
+  if (installState.deferredPrompt) {
+    installState.deferredPrompt.prompt();
+    const choice = await installState.deferredPrompt.userChoice;
+    installState.deferredPrompt = null;
+
+    if (choice.outcome === "accepted") {
+      installState.dismissed = true;
+      renderAll();
+      setMessage("Install started. Open it from your home screen for the full app feel.", "success");
+    } else {
+      renderAll();
+      setMessage("Install was dismissed. You can still continue on the web.", "info");
+    }
+    return;
+  }
+
+  if (canSuggestIosInstall()) {
+    setMessage("On iPhone or iPad, tap Share and choose Add to Home Screen.", "info");
+    return;
+  }
+
+  setMessage("Install shows up from a secure supported mobile link when available.", "info");
+}
+
+function continueOnWeb() {
+  installState.dismissed = true;
+  exitMobilePlayView();
+  renderAll();
+  setMessage("Continuing on the web version.", "info");
+}
+
+function leavePlayView() {
+  exitMobilePlayView();
+  renderAll();
+  setMessage("Exited the full-screen play view.", "info");
 }
 
 function finishGame() {
@@ -816,27 +939,10 @@ ui.loginTab.addEventListener("click", () => switchAuthMode("login"));
 ui.registerTab.addEventListener("click", () => switchAuthMode("register"));
 ui.startButton.addEventListener("click", startGame);
 ui.logoutButton.addEventListener("click", logout);
-ui.installButton.addEventListener("click", async () => {
-  if (installState.deferredPrompt) {
-    installState.deferredPrompt.prompt();
-    const choice = await installState.deferredPrompt.userChoice;
-    installState.deferredPrompt = null;
-    renderInstallCta();
-
-    if (choice.outcome === "accepted") {
-      setMessage("Install started. Once added, open it from your home screen.", "success");
-    } else {
-      setMessage("Install was dismissed. You can keep playing here anytime.", "info");
-    }
-    return;
-  }
-
-  if (canSuggestIosInstall()) {
-    setMessage("On iPhone or iPad, tap Share and choose Add to Home Screen.", "info");
-  } else {
-    setMessage("Install becomes available from a secure link in a supported mobile app experience.", "info");
-  }
-});
+ui.exitViewButton.addEventListener("click", leavePlayView);
+ui.installButton.addEventListener("click", handleInstallRequest);
+ui.installGateButton.addEventListener("click", handleInstallRequest);
+ui.continueWebButton.addEventListener("click", continueOnWeb);
 
 canvas.addEventListener("pointerdown", () => {
   canvas.focus({ preventScroll: true });
@@ -866,13 +972,33 @@ window.addEventListener("keydown", (event) => {
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   installState.deferredPrompt = event;
-  renderInstallCta();
+  installState.dismissed = false;
+  renderAll();
 });
 
 window.addEventListener("appinstalled", () => {
   installState.deferredPrompt = null;
-  renderInstallCta();
+  installState.dismissed = true;
+  renderAll();
   setMessage("App installed. Launch it from your home screen anytime.", "success");
+});
+
+window.addEventListener("fullscreenchange", () => {
+  if (document.fullscreenElement) {
+    return;
+  }
+
+  if (viewState.immersive && !shouldUseImmersivePlayView()) {
+    setImmersiveView(false);
+    renderAll();
+  }
+});
+
+window.addEventListener("resize", () => {
+  if (viewState.immersive && !isLikelyMobileDevice()) {
+    exitMobilePlayView();
+  }
+  renderAll();
 });
 
 switchAuthMode("login");

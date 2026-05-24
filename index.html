@@ -18,6 +18,17 @@
 <body>
   <div class="backdrop backdrop-left"></div>
   <div class="backdrop backdrop-right"></div>
+  <div class="install-gate is-hidden" id="installGate" aria-live="polite">
+    <div class="install-gate-panel">
+      <p class="install-gate-tag">Install Recommended</p>
+      <h2>Open It Like A Real App</h2>
+      <p id="installGateText" class="install-gate-text">Install Flappy Bird Club first for the cleanest mobile app experience.</p>
+      <div class="install-gate-actions">
+        <button id="installGateButton" class="primary-button" type="button">Install App</button>
+        <button id="continueWebButton" class="secondary-button ghost-button" type="button">Continue On Web</button>
+      </div>
+    </div>
+  </div>
 
   <div class="page-shell">
     <header class="hero">
@@ -43,6 +54,58 @@
       </div>
     </header>
 
+    <section class="account-strip">
+      <section class="card auth-card" id="authCard">
+        <div class="card-header">
+          <h2>Account</h2>
+          <p>Sign in at the top, then jump straight into a run.</p>
+        </div>
+
+        <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+          <button class="auth-tab is-active" id="loginTab" type="button" data-mode="login">Log In</button>
+          <button class="auth-tab" id="registerTab" type="button" data-mode="register">Register</button>
+        </div>
+
+        <form id="authForm" class="auth-form">
+          <label class="field">
+            <span>Username</span>
+            <input id="usernameInput" name="username" type="text" maxlength="16" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="bird_ace">
+          </label>
+
+          <label class="field">
+            <span>Password</span>
+            <input id="passwordInput" name="password" type="password" maxlength="24" autocomplete="current-password" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="at least 4 characters">
+          </label>
+
+          <button id="authSubmit" class="primary-button auth-submit" type="submit">Log In</button>
+        </form>
+
+        <p class="helper-text">Usernames can use letters, numbers, and <code>_</code>, with 3 to 16 characters.</p>
+      </section>
+
+      <section class="card player-card is-hidden" id="playerCard">
+        <div class="card-header">
+          <h2 id="welcomeHeading">Welcome</h2>
+          <p id="playerSummary">Ready for a new run.</p>
+        </div>
+
+        <dl class="stat-grid">
+          <div class="stat-tile">
+            <dt>Best Score</dt>
+            <dd id="profileBest">0</dd>
+          </div>
+          <div class="stat-tile">
+            <dt>Last Score</dt>
+            <dd id="profileLast">0</dd>
+          </div>
+        </dl>
+
+        <div class="action-stack">
+          <button id="logoutButton" class="secondary-button" type="button">Log Out</button>
+        </div>
+      </section>
+    </section>
+
     <main class="layout">
       <section class="game-column" id="gameColumn">
         <div class="card canvas-card">
@@ -61,6 +124,7 @@
             <div class="canvas-actions">
               <button id="startButton" class="primary-button" type="button">Start Game</button>
               <button id="installButton" class="secondary-button install-button is-hidden" type="button">Install App</button>
+              <button id="exitViewButton" class="secondary-button utility-button is-hidden" type="button">Exit View</button>
             </div>
           </div>
 
@@ -77,56 +141,6 @@
       </section>
 
       <aside class="sidebar">
-        <section class="card auth-card" id="authCard">
-          <div class="card-header">
-            <h2>Account</h2>
-            <p>Everything is stored locally on this device.</p>
-          </div>
-
-          <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
-            <button class="auth-tab is-active" id="loginTab" type="button" data-mode="login">Log In</button>
-            <button class="auth-tab" id="registerTab" type="button" data-mode="register">Register</button>
-          </div>
-
-          <form id="authForm" class="auth-form">
-            <label class="field">
-              <span>Username</span>
-              <input id="usernameInput" name="username" type="text" maxlength="16" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="bird_ace">
-            </label>
-
-            <label class="field">
-              <span>Password</span>
-              <input id="passwordInput" name="password" type="password" maxlength="24" autocomplete="current-password" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="at least 4 characters">
-            </label>
-
-            <button id="authSubmit" class="primary-button" type="submit">Log In</button>
-          </form>
-
-          <p class="helper-text">Usernames can use letters, numbers, and <code>_</code>, with 3 to 16 characters.</p>
-        </section>
-
-        <section class="card player-card is-hidden" id="playerCard">
-          <div class="card-header">
-            <h2 id="welcomeHeading">Welcome</h2>
-            <p id="playerSummary">Ready for a new run.</p>
-          </div>
-
-          <dl class="stat-grid">
-            <div class="stat-tile">
-              <dt>Best Score</dt>
-              <dd id="profileBest">0</dd>
-            </div>
-            <div class="stat-tile">
-              <dt>Last Score</dt>
-              <dd id="profileLast">0</dd>
-            </div>
-          </dl>
-
-          <div class="action-stack">
-            <button id="logoutButton" class="secondary-button" type="button">Log Out</button>
-          </div>
-        </section>
-
         <section class="card">
           <div class="card-header">
             <h2>Leaderboard</h2>
