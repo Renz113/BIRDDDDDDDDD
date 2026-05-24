@@ -38,11 +38,6 @@ const ui = {
   installBanner: document.getElementById("installBanner"),
   installBannerHost: document.getElementById("installBannerHost"),
   installBannerButton: document.getElementById("installBannerButton"),
-  installBannerClose: document.getElementById("installBannerClose"),
-  installGate: document.getElementById("installGate"),
-  installGateText: document.getElementById("installGateText"),
-  installGateButton: document.getElementById("installGateButton"),
-  continueWebButton: document.getElementById("continueWebButton"),
 };
 
 const state = {
@@ -60,7 +55,7 @@ const storageState = {
 
 const installState = {
   deferredPrompt: null,
-  dismissed: false,
+  installed: false,
 };
 
 const viewState = {
@@ -263,35 +258,28 @@ function isLikelyMobileDevice() {
   return /android|iphone|ipad|ipod/.test(userAgent) || window.matchMedia("(max-width: 820px)").matches;
 }
 
-function shouldShowInstallGate() {
-  return !isStandaloneMode() && !installState.dismissed && isLikelyMobileDevice();
-}
-
 function shouldUseImmersivePlayView() {
-  return isLikelyMobileDevice() && !shouldShowInstallGate();
+  return isLikelyMobileDevice();
 }
 
 function currentInstallActionLabel() {
-  if (isStandaloneMode()) {
+  if (isStandaloneMode() || installState.installed) {
     return "Installed";
-  }
-
-  if (installState.deferredPrompt) {
-    return "Install";
   }
 
   if (canSuggestIosInstall()) {
     return "Add To Home";
   }
 
-  return "Install Info";
+  return "Install";
 }
 
 function shouldShowInstallBanner() {
   return !isStandaloneMode()
-    && !installState.dismissed
+    && !installState.installed
+    && !viewState.immersive
     && isLikelyMobileDevice()
-    && (Boolean(installState.deferredPrompt) || canSuggestIosInstall());
+    && (window.isSecureContext || canSuggestIosInstall());
 }
 
 function syncViewState() {
@@ -380,7 +368,7 @@ function renderInstallBanner() {
 
   ui.installBannerHost.textContent = window.location.host || "Open from localhost or HTTPS";
   ui.installBannerButton.textContent = currentInstallActionLabel();
-  ui.installBannerButton.disabled = isStandaloneMode();
+  ui.installBannerButton.disabled = isStandaloneMode() || installState.installed;
 }
 
 function renderHeroInstall(label, note, visible = true, disabled = false) {
@@ -391,65 +379,45 @@ function renderHeroInstall(label, note, visible = true, disabled = false) {
 }
 
 function renderInstallCta() {
-  if (isStandaloneMode()) {
+  if (isStandaloneMode() || installState.installed) {
     renderHeroInstall("Installed", "This page is already running in app mode from your home screen.", false, true);
     ui.installButton.classList.add("is-hidden");
     ui.installButton.disabled = true;
     ui.installHint.textContent = "Installed app mode is ready for quick mobile play.";
-    ui.installGateButton.textContent = "Installed";
-    ui.installGateText.textContent = "Flappy Bird Club is already running like an installed app.";
     return;
   }
 
   if (installState.deferredPrompt) {
-    renderHeroInstall("Install", "Tap Install on the home page to open the real native app install popup.", true, false);
+    renderHeroInstall("Install", "Tap Install here to open the real native install popup.", true, false);
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Install";
     ui.installHint.textContent = "Install this app for one-tap access from your home screen.";
-    ui.installGateButton.textContent = "Install";
-    ui.installGateText.textContent = "Install Flappy Bird Club first for the cleanest mobile app experience.";
     return;
   }
 
   if (canSuggestIosInstall()) {
-    renderHeroInstall("Add To Home", "From this home page, tap Share and then Add to Home Screen in Safari.", true, false);
+    renderHeroInstall("Add To Home", "In Safari, tap Share and choose Add to Home Screen.", true, false);
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Add To Home";
     ui.installHint.textContent = "On iPhone or iPad, tap Share and then Add to Home Screen.";
-    ui.installGateButton.textContent = "How To Install";
-    ui.installGateText.textContent = "For iPhone or iPad, use Share and then Add to Home Screen before playing.";
     return;
   }
 
-  if (isLikelyMobileDevice()) {
-    renderHeroInstall("Install Info", "Stay on the home page for a moment, then tap Install when the browser is ready.", true, false);
+  if (isLikelyMobileDevice() && window.isSecureContext) {
+    renderHeroInstall("Install", "Stay on this home page for a moment, then tap Install when Chrome or Edge is ready.", true, false);
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
-    ui.installButton.textContent = "Install Info";
-    ui.installHint.textContent = "The real install prompt appears after the browser confirms the app is installable.";
-    ui.installGateButton.textContent = "Install Info";
-    ui.installGateText.textContent = "The browser has not exposed the install prompt yet. Open the live HTTPS site and wait a moment if needed.";
+    ui.installButton.textContent = "Install";
+    ui.installHint.textContent = "If the browser has not shown the popup yet, stay on the page and tap Install again.";
     return;
   }
 
-  renderHeroInstall("Install", "Use Chrome or Edge here on the home page. When the browser allows install, this button opens it.", true, false);
+  renderHeroInstall("Install", "Open this site in Chrome, Edge, or Safari on your phone and then tap Install.", true, false);
   ui.installButton.classList.add("is-hidden");
   ui.installButton.disabled = true;
-  ui.installHint.textContent = "Install is available from a secure mobile link when supported.";
-  ui.installGateButton.textContent = "Install Info";
-  ui.installGateText.textContent = "Use a supported mobile browser on the live HTTPS site to install this app.";
-}
-
-function renderInstallGate() {
-  const visible = shouldShowInstallGate();
-  ui.installGate.classList.toggle("is-hidden", !visible);
-  document.body.dataset.installGate = visible ? "visible" : "hidden";
-
-  if (visible && viewState.immersive) {
-    exitMobilePlayView();
-  }
+  ui.installHint.textContent = "Install is available from a secure mobile browser when supported.";
 }
 
 function setMessage(message, tone = "info") {
@@ -571,7 +539,6 @@ function renderAll() {
   renderLeaderboard();
   renderControls();
   renderInstallBanner();
-  renderInstallGate();
 }
 
 function switchAuthMode(mode) {
@@ -656,12 +623,12 @@ async function handleInstallRequest() {
     installState.deferredPrompt = null;
 
     if (choice.outcome === "accepted") {
-      installState.dismissed = true;
+      installState.installed = true;
       renderAll();
       setMessage("Install started. Open it from your home screen for the full app feel.", "success");
     } else {
       renderAll();
-      setMessage("Install was dismissed. You can still continue on the web.", "info");
+      setMessage("Install was dismissed. Tap Install again anytime.", "info");
     }
     return;
   }
@@ -677,23 +644,11 @@ async function handleInstallRequest() {
   }
 
   if (isLikelyMobileDevice()) {
-    setMessage("The browser has not exposed the install prompt yet. Wait a moment on the live site, then tap Install again.", "info");
+    setMessage("The browser is still preparing the install popup. Stay on the page, then tap Install again.", "info");
     return;
   }
 
   setMessage("Use a supported mobile browser on the live HTTPS site to install this app.", "info");
-}
-
-function continueOnWeb() {
-  installState.dismissed = true;
-  exitMobilePlayView();
-  renderAll();
-  setMessage("Continuing on the web version.", "info");
-}
-
-function dismissInstallNotice() {
-  installState.dismissed = true;
-  renderAll();
 }
 
 function handleLaunchShortcut() {
@@ -1105,9 +1060,6 @@ ui.exitViewButton.addEventListener("click", leavePlayView);
 ui.heroInstallButton.addEventListener("click", handleInstallRequest);
 ui.installButton.addEventListener("click", handleInstallRequest);
 ui.installBannerButton.addEventListener("click", handleInstallRequest);
-ui.installBannerClose.addEventListener("click", dismissInstallNotice);
-ui.installGateButton.addEventListener("click", handleInstallRequest);
-ui.continueWebButton.addEventListener("click", continueOnWeb);
 
 canvas.addEventListener("pointerdown", () => {
   canvas.focus({ preventScroll: true });
@@ -1137,13 +1089,13 @@ window.addEventListener("keydown", (event) => {
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   installState.deferredPrompt = event;
-  installState.dismissed = false;
+  installState.installed = false;
   renderAll();
 });
 
 window.addEventListener("appinstalled", () => {
   installState.deferredPrompt = null;
-  installState.dismissed = true;
+  installState.installed = true;
   renderAll();
   setMessage("App installed. Launch it from your home screen anytime.", "success");
 });

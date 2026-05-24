@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Flappy Bird Club",
-  "short_name": "Flappy Bird",
+  "name": "FlappyBird",
+  "short_name": "FlappyBird",
   "description": "A polished Flappy Bird web app with local accounts, saved scores, and quick mobile play.",
   "lang": "en",
   "dir": "ltr",
