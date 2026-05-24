@@ -24,6 +24,21 @@ Then open `http://localhost:8000`.
 - a local leaderboard
 - keyboard, mouse, and touch controls
 
+## GitHub Pages
+
+This repo now includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`
+that deploys the browser version to GitHub Pages whenever `main` is updated.
+
+To turn it on in GitHub:
+
+1. Open the repository `Settings`
+2. Go to `Pages`
+3. Under `Build and deployment`, set `Source` to `GitHub Actions`
+
+After the first successful workflow run, the site should be available at:
+
+`https://renz113.github.io/BIRDDDDDDDDD/`
+
 ## Pygame Version
 
 Run:
