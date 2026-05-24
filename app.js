@@ -31,6 +31,10 @@ const ui = {
   gameFrame: document.getElementById("gameFrame"),
   installButton: document.getElementById("installButton"),
   installHint: document.getElementById("installHint"),
+  installBanner: document.getElementById("installBanner"),
+  installBannerHost: document.getElementById("installBannerHost"),
+  installBannerButton: document.getElementById("installBannerButton"),
+  installBannerClose: document.getElementById("installBannerClose"),
   installGate: document.getElementById("installGate"),
   installGateText: document.getElementById("installGateText"),
   installGateButton: document.getElementById("installGateButton"),
@@ -259,6 +263,29 @@ function shouldUseImmersivePlayView() {
   return isLikelyMobileDevice() && !shouldShowInstallGate();
 }
 
+function currentInstallActionLabel() {
+  if (isStandaloneMode()) {
+    return "Installed";
+  }
+
+  if (installState.deferredPrompt) {
+    return "Install";
+  }
+
+  if (canSuggestIosInstall()) {
+    return "Add To Home";
+  }
+
+  return "Install Info";
+}
+
+function shouldShowInstallBanner() {
+  return !isStandaloneMode()
+    && !installState.dismissed
+    && isLikelyMobileDevice()
+    && (Boolean(installState.deferredPrompt) || canSuggestIosInstall());
+}
+
 function syncViewState() {
   document.body.dataset.mobilePlay = viewState.immersive ? "immersive" : "page";
 }
@@ -312,6 +339,19 @@ function focusGameArea() {
   canvas.focus({ preventScroll: true });
 }
 
+function renderInstallBanner() {
+  const visible = shouldShowInstallBanner();
+  ui.installBanner.classList.toggle("is-hidden", !visible);
+
+  if (!visible) {
+    return;
+  }
+
+  ui.installBannerHost.textContent = window.location.host || "Open from localhost or HTTPS";
+  ui.installBannerButton.textContent = currentInstallActionLabel();
+  ui.installBannerButton.disabled = isStandaloneMode();
+}
+
 function renderInstallCta() {
   if (isStandaloneMode()) {
     ui.installButton.classList.add("is-hidden");
@@ -325,9 +365,9 @@ function renderInstallCta() {
   if (installState.deferredPrompt) {
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
-    ui.installButton.textContent = "Install App";
+    ui.installButton.textContent = "Install";
     ui.installHint.textContent = "Install this app for one-tap access from your home screen.";
-    ui.installGateButton.textContent = "Install App";
+    ui.installGateButton.textContent = "Install";
     ui.installGateText.textContent = "Install Flappy Bird Club first for the cleanest mobile app experience.";
     return;
   }
@@ -342,11 +382,21 @@ function renderInstallCta() {
     return;
   }
 
+  if (isLikelyMobileDevice()) {
+    ui.installButton.classList.remove("is-hidden");
+    ui.installButton.disabled = false;
+    ui.installButton.textContent = "Install Info";
+    ui.installHint.textContent = "The real install prompt appears after the browser confirms the app is installable.";
+    ui.installGateButton.textContent = "Install Info";
+    ui.installGateText.textContent = "The browser has not exposed the install prompt yet. Open the live HTTPS site and wait a moment if needed.";
+    return;
+  }
+
   ui.installButton.classList.add("is-hidden");
   ui.installButton.disabled = true;
   ui.installHint.textContent = "Install is available from a secure mobile link when supported.";
   ui.installGateButton.textContent = "Install Info";
-  ui.installGateText.textContent = "This device may need a supported secure link before the install option appears.";
+  ui.installGateText.textContent = "Use a supported mobile browser on the live HTTPS site to install this app.";
 }
 
 function renderInstallGate() {
@@ -477,6 +527,7 @@ function renderAll() {
   renderPlayerCard();
   renderLeaderboard();
   renderControls();
+  renderInstallBanner();
   renderInstallGate();
 }
 
@@ -577,7 +628,17 @@ async function handleInstallRequest() {
     return;
   }
 
-  setMessage("Install shows up from a secure supported mobile link when available.", "info");
+  if (!window.isSecureContext) {
+    setMessage("Install works only from localhost or an HTTPS deployment such as GitHub Pages.", "error");
+    return;
+  }
+
+  if (isLikelyMobileDevice()) {
+    setMessage("The browser has not exposed the install prompt yet. Wait a moment on the live site, then tap Install again.", "info");
+    return;
+  }
+
+  setMessage("Use a supported mobile browser on the live HTTPS site to install this app.", "info");
 }
 
 function continueOnWeb() {
@@ -585,6 +646,11 @@ function continueOnWeb() {
   exitMobilePlayView();
   renderAll();
   setMessage("Continuing on the web version.", "info");
+}
+
+function dismissInstallNotice() {
+  installState.dismissed = true;
+  renderAll();
 }
 
 function leavePlayView() {
@@ -941,6 +1007,8 @@ ui.startButton.addEventListener("click", startGame);
 ui.logoutButton.addEventListener("click", logout);
 ui.exitViewButton.addEventListener("click", leavePlayView);
 ui.installButton.addEventListener("click", handleInstallRequest);
+ui.installBannerButton.addEventListener("click", handleInstallRequest);
+ui.installBannerClose.addEventListener("click", dismissInstallNotice);
 ui.installGateButton.addEventListener("click", handleInstallRequest);
 ui.continueWebButton.addEventListener("click", continueOnWeb);
 

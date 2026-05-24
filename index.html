@@ -18,13 +18,24 @@
 <body>
   <div class="backdrop backdrop-left"></div>
   <div class="backdrop backdrop-right"></div>
+  <div class="install-banner is-hidden" id="installBanner" aria-live="polite">
+    <div class="install-banner-card">
+      <img class="install-banner-icon" src="icons/icon-192.png" alt="" width="56" height="56">
+      <div class="install-banner-copy">
+        <strong>Install Flappy Bird Club</strong>
+        <span id="installBannerHost">renz113.github.io</span>
+      </div>
+      <button id="installBannerButton" class="install-banner-action" type="button">Install</button>
+      <button id="installBannerClose" class="install-banner-close" type="button" aria-label="Dismiss install notice">Close</button>
+    </div>
+  </div>
   <div class="install-gate is-hidden" id="installGate" aria-live="polite">
     <div class="install-gate-panel">
       <p class="install-gate-tag">Install Recommended</p>
       <h2>Open It Like A Real App</h2>
       <p id="installGateText" class="install-gate-text">Install Flappy Bird Club first for the cleanest mobile app experience.</p>
       <div class="install-gate-actions">
-        <button id="installGateButton" class="primary-button" type="button">Install App</button>
+        <button id="installGateButton" class="primary-button" type="button">Install</button>
         <button id="continueWebButton" class="secondary-button ghost-button" type="button">Continue On Web</button>
       </div>
     </div>

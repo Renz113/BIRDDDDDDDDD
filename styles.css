@@ -90,6 +90,79 @@ body::before {
   padding: 20px 0 34px;
 }
 
+.install-banner {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 50%;
+  z-index: 6;
+  width: min(calc(100% - 20px), 560px);
+  transform: translateX(-50%);
+}
+
+.install-banner-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 14px 14px 12px;
+  border-radius: 24px;
+  background: rgba(27, 35, 42, 0.96);
+  color: #f5f8fb;
+  box-shadow: 0 16px 48px rgba(7, 16, 24, 0.34);
+}
+
+.install-banner-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.install-banner-copy {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.install-banner-copy strong {
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.install-banner-copy span {
+  color: rgba(226, 234, 243, 0.8);
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.install-banner-action,
+.install-banner-close {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  background: transparent;
+}
+
+.install-banner-action {
+  padding: 10px 12px;
+  border-radius: 999px;
+  color: #81d8f6;
+  font-weight: 700;
+}
+
+.install-banner-close {
+  color: rgba(226, 234, 243, 0.74);
+  font-size: 0.86rem;
+  padding: 8px 4px;
+}
+
+.install-banner-action:hover,
+.install-banner-close:hover {
+  filter: brightness(1.06);
+}
+
 .install-gate {
   position: fixed;
   inset: 0;
@@ -734,6 +807,33 @@ code {
 }
 
 @media (max-width: 640px) {
+  .install-banner {
+    width: min(calc(100% - 14px), 560px);
+    top: calc(8px + env(safe-area-inset-top));
+  }
+
+  .install-banner-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    row-gap: 8px;
+    padding: 12px;
+  }
+
+  .install-banner-copy {
+    gap: 2px;
+  }
+
+  .install-banner-action {
+    justify-self: end;
+    padding-left: 10px;
+    padding-right: 6px;
+  }
+
+  .install-banner-close {
+    grid-column: 2 / -1;
+    justify-self: end;
+    padding: 0;
+  }
+
   .page-shell {
     width: min(100% - 20px, 1320px);
     padding-top: 14px;

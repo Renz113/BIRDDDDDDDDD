@@ -1,13 +1,26 @@
 {
+  "id": "./",
   "name": "Flappy Bird Club",
   "short_name": "Flappy Bird",
   "description": "A polished Flappy Bird web app with local accounts, saved scores, and quick mobile play.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#dff1fb",
   "theme_color": "#17324a",
+  "categories": [
+    "games",
+    "entertainment"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "./icons/icon-192.png",
