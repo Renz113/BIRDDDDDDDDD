@@ -26,6 +26,10 @@ const ui = {
   messageBanner: document.getElementById("messageBanner"),
   startButton: document.getElementById("startButton"),
   logoutButton: document.getElementById("logoutButton"),
+  gameColumn: document.getElementById("gameColumn"),
+  gameFrame: document.getElementById("gameFrame"),
+  installButton: document.getElementById("installButton"),
+  installHint: document.getElementById("installHint"),
 };
 
 const state = {
@@ -39,6 +43,10 @@ const state = {
 const storageState = {
   supported: canUseLocalStorage(),
   memoryUsers: {},
+};
+
+const installState = {
+  deferredPrompt: null,
 };
 
 const GAME = {
@@ -213,6 +221,64 @@ function getLeaderboard(limit = 5) {
     .slice(0, limit);
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function isStandaloneMode() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function canSuggestIosInstall() {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  const isIos = /iphone|ipad|ipod/.test(userAgent);
+  const isSafari = /safari/.test(userAgent) && !/crios|fxios|edgios|opios/.test(userAgent);
+  return isIos && isSafari;
+}
+
+function focusGameArea() {
+  const top = ui.gameColumn.getBoundingClientRect().top;
+  const shouldScroll = window.innerWidth <= 960 || top < 0 || top > 80;
+
+  if (shouldScroll) {
+    ui.gameColumn.scrollIntoView({
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+
+  canvas.focus({ preventScroll: true });
+}
+
+function renderInstallCta() {
+  if (isStandaloneMode()) {
+    ui.installButton.classList.add("is-hidden");
+    ui.installButton.disabled = true;
+    ui.installHint.textContent = "Installed app mode is ready for quick mobile play.";
+    return;
+  }
+
+  if (installState.deferredPrompt) {
+    ui.installButton.classList.remove("is-hidden");
+    ui.installButton.disabled = false;
+    ui.installButton.textContent = "Install App";
+    ui.installHint.textContent = "Install this app for one-tap access from your home screen.";
+    return;
+  }
+
+  if (canSuggestIosInstall()) {
+    ui.installButton.classList.remove("is-hidden");
+    ui.installButton.disabled = false;
+    ui.installButton.textContent = "Add To Home";
+    ui.installHint.textContent = "On iPhone or iPad, tap Share and then Add to Home Screen.";
+    return;
+  }
+
+  ui.installButton.classList.add("is-hidden");
+  ui.installButton.disabled = true;
+  ui.installHint.textContent = "Install becomes available from a supported secure link on mobile.";
+}
+
 function setMessage(message, tone = "info") {
   state.message = message;
   state.tone = tone;
@@ -223,6 +289,7 @@ function setMessage(message, tone = "info") {
 function setMode(mode) {
   state.mode = mode;
   ui.modeBadge.textContent = formatMode(mode);
+  document.body.dataset.mode = mode;
   renderControls();
 }
 
@@ -264,8 +331,8 @@ function renderPlayerCard() {
 
   ui.welcomeHeading.textContent = `Welcome, ${user.displayName}`;
   ui.playerSummary.textContent = storageState.supported
-    ? "Your account and scores stay saved in this browser."
-    : "This browser blocked local storage, so scores last only for this tab.";
+    ? "Your account and scores stay saved on this device."
+    : "Local storage is unavailable, so scores last only for this tab.";
   ui.profileBest.textContent = String(user.bestScore || 0);
   ui.profileLast.textContent = String(user.lastScore || 0);
   ui.bestValue.textContent = String(user.bestScore || 0);
@@ -307,7 +374,9 @@ function renderControls() {
   const canPlay = Boolean(getCurrentUser());
 
   ui.startButton.disabled = !canPlay || state.mode === "playing";
-  if (state.mode === "playing") {
+  if (!canPlay) {
+    ui.startButton.textContent = "Log In To Start";
+  } else if (state.mode === "playing") {
     ui.startButton.textContent = "Flying...";
   } else if (state.mode === "gameover") {
     ui.startButton.textContent = "Play Again";
@@ -317,9 +386,11 @@ function renderControls() {
 
   ui.logoutButton.disabled = !canPlay || state.mode === "playing";
   ui.scoreValue.textContent = String(game.score);
+  renderInstallCta();
 }
 
 function renderAll() {
+  document.body.dataset.mode = state.mode;
   renderAuthMode();
   renderPlayerCard();
   renderLeaderboard();
@@ -334,10 +405,13 @@ function switchAuthMode(mode) {
 
 function loginWithKey(key, message) {
   state.currentUserKey = key;
-  ui.passwordInput.value = "";
+  ui.authForm.reset();
+  ui.usernameInput.blur();
+  ui.passwordInput.blur();
   setMode("menu");
   setMessage(message, "success");
   renderAll();
+  requestAnimationFrame(focusGameArea);
 }
 
 function logout() {
@@ -393,6 +467,7 @@ function startGame() {
   setMode("playing");
   setMessage("Flap with Space, Enter, click, or tap.", "info");
   renderAll();
+  requestAnimationFrame(focusGameArea);
 }
 
 function finishGame() {
@@ -644,8 +719,8 @@ function drawCanvasOverlay() {
     ctx.fillText("Log In To Fly", GAME.width / 2, 215);
     ctx.font = "20px Trebuchet MS";
     ctx.fillStyle = "#52657d";
-    ctx.fillText("Use the account panel to create a player.", GAME.width / 2, 255);
-    ctx.fillText("Your scores will save in this browser.", GAME.width / 2, 285);
+    ctx.fillText("Use the account panel to create a pilot.", GAME.width / 2, 255);
+    ctx.fillText("Your scores will stay on this device.", GAME.width / 2, 285);
   }
 
   if (state.mode === "menu") {
@@ -656,7 +731,7 @@ function drawCanvasOverlay() {
     ctx.fillText("Ready?", GAME.width / 2, 205);
     ctx.font = "21px Trebuchet MS";
     ctx.fillStyle = "#52657d";
-    ctx.fillText("Press Start, Space, Enter, click, or tap.", GAME.width / 2, 248);
+    ctx.fillText("Tap Start or press Space, Enter, click, or tap.", GAME.width / 2, 248);
     ctx.fillText("Beat your best score and climb the board.", GAME.width / 2, 282);
   }
 
@@ -674,7 +749,7 @@ function drawCanvasOverlay() {
     ctx.font = "20px Trebuchet MS";
     ctx.fillStyle = "#52657d";
     ctx.fillText("Press Start, Space, Enter, click, or tap.", GAME.width / 2, 322);
-    ctx.fillText("Your best score was updated on the left.", GAME.width / 2, 352);
+    ctx.fillText("Your best score updates in the profile panel.", GAME.width / 2, 352);
   }
 
   if (state.mode === "playing") {
@@ -741,8 +816,30 @@ ui.loginTab.addEventListener("click", () => switchAuthMode("login"));
 ui.registerTab.addEventListener("click", () => switchAuthMode("register"));
 ui.startButton.addEventListener("click", startGame);
 ui.logoutButton.addEventListener("click", logout);
+ui.installButton.addEventListener("click", async () => {
+  if (installState.deferredPrompt) {
+    installState.deferredPrompt.prompt();
+    const choice = await installState.deferredPrompt.userChoice;
+    installState.deferredPrompt = null;
+    renderInstallCta();
+
+    if (choice.outcome === "accepted") {
+      setMessage("Install started. Once added, open it from your home screen.", "success");
+    } else {
+      setMessage("Install was dismissed. You can keep playing here anytime.", "info");
+    }
+    return;
+  }
+
+  if (canSuggestIosInstall()) {
+    setMessage("On iPhone or iPad, tap Share and choose Add to Home Screen.", "info");
+  } else {
+    setMessage("Install becomes available from a secure link in a supported mobile app experience.", "info");
+  }
+});
 
 canvas.addEventListener("pointerdown", () => {
+  canvas.focus({ preventScroll: true });
   handleActionInput();
 });
 
@@ -766,11 +863,31 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  installState.deferredPrompt = event;
+  renderInstallCta();
+});
+
+window.addEventListener("appinstalled", () => {
+  installState.deferredPrompt = null;
+  renderInstallCta();
+  setMessage("App installed. Launch it from your home screen anytime.", "success");
+});
+
 switchAuthMode("login");
 renderAll();
 
 if (!storageState.supported) {
-  setMessage("This browser blocked local storage, so scores last only while this tab stays open.", "error");
+  setMessage("Local storage is unavailable, so scores last only while this tab stays open.", "error");
+}
+
+if ("serviceWorker" in navigator && window.isSecureContext) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {
+      renderInstallCta();
+    });
+  });
 }
 
 requestAnimationFrame(gameLoop);

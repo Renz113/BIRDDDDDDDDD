@@ -7,7 +7,7 @@ This workspace now includes two versions of the game:
 
 ## Web Version
 
-Open `index.html` in your browser.
+Open `index.html` directly, or serve the folder locally.
 
 If you prefer serving the folder instead of opening the file directly, you can run:
 
@@ -17,17 +17,19 @@ python -m http.server
 
 Then open `http://localhost:8000`.
 
+For install prompts on mobile, use `http://localhost` during testing or deploy to an `https://` URL.
+
 ### Web Features
 
 - local login and registration
-- persistent high scores saved in browser `localStorage`
+- persistent high scores saved in `localStorage`
 - a local leaderboard
 - keyboard, mouse, and touch controls
 
 ## GitHub Pages
 
 This repo now includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`
-that deploys the browser version to GitHub Pages whenever `main` is updated.
+that deploys the web version to GitHub Pages whenever `main` is updated.
 
 To turn it on in GitHub:
 
@@ -49,5 +51,5 @@ python main.py
 
 ## Notes
 
-- The browser version stores users and scores only on the same browser profile
+- The web version stores users and scores only on the same device profile
 - The `pygame` version stores users in `data/users.json`

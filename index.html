@@ -3,9 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A browser Flappy Bird clone with local login, saved scores, and a leaderboard.">
-  <meta name="theme-color" content="#85d3ff">
+  <meta name="description" content="A polished Flappy Bird web app with local accounts, saved scores, and quick mobile play.">
+  <meta name="theme-color" content="#17324a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Flappy Bird Club">
   <title>Flappy Bird Club</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,10 +21,10 @@
 
   <div class="page-shell">
     <header class="hero">
-      <div>
-        <p class="eyebrow">Browser Edition</p>
+      <div class="hero-copy">
+        <p class="hero-tag">Arcade Leaderboard</p>
         <h1>Flappy Bird Club</h1>
-        <p class="lede">Log in, flap through pipes, and keep your high score saved in this browser.</p>
+        <p class="lede">Sign in, jump into a run, and keep your best score saved on this device.</p>
       </div>
 
       <div class="status-strip">
@@ -37,11 +44,43 @@
     </header>
 
     <main class="layout">
+      <section class="game-column" id="gameColumn">
+        <div class="card canvas-card">
+          <div class="canvas-toolbar">
+            <div class="canvas-head">
+              <div class="score-chip">
+                <span>Score</span>
+                <strong id="scoreValue">0</strong>
+              </div>
+              <div class="score-chip">
+                <span>Best</span>
+                <strong id="bestValue">0</strong>
+              </div>
+            </div>
+
+            <div class="canvas-actions">
+              <button id="startButton" class="primary-button" type="button">Start Game</button>
+              <button id="installButton" class="secondary-button install-button is-hidden" type="button">Install App</button>
+            </div>
+          </div>
+
+          <p id="installHint" class="install-hint">Install on your home screen for faster mobile access when your device supports it.</p>
+
+          <div class="canvas-frame" id="gameFrame">
+            <canvas id="gameCanvas" width="480" height="720" tabindex="0" aria-label="Flappy Bird game area"></canvas>
+          </div>
+        </div>
+
+        <section class="card banner-card">
+          <p id="messageBanner" class="message-banner" data-tone="info">Create an account or log in to play.</p>
+        </section>
+      </section>
+
       <aside class="sidebar">
         <section class="card auth-card" id="authCard">
           <div class="card-header">
             <h2>Account</h2>
-            <p>Everything is stored locally in this browser.</p>
+            <p>Everything is stored locally on this device.</p>
           </div>
 
           <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
@@ -52,12 +91,12 @@
           <form id="authForm" class="auth-form">
             <label class="field">
               <span>Username</span>
-              <input id="usernameInput" name="username" type="text" maxlength="16" autocomplete="username" placeholder="bird_ace">
+              <input id="usernameInput" name="username" type="text" maxlength="16" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="bird_ace">
             </label>
 
             <label class="field">
               <span>Password</span>
-              <input id="passwordInput" name="password" type="password" maxlength="24" autocomplete="current-password" placeholder="at least 4 characters">
+              <input id="passwordInput" name="password" type="password" maxlength="24" autocomplete="current-password" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="at least 4 characters">
             </label>
 
             <button id="authSubmit" class="primary-button" type="submit">Log In</button>
@@ -84,7 +123,6 @@
           </dl>
 
           <div class="action-stack">
-            <button id="startButton" class="primary-button" type="button">Start Game</button>
             <button id="logoutButton" class="secondary-button" type="button">Log Out</button>
           </div>
         </section>
@@ -92,7 +130,7 @@
         <section class="card">
           <div class="card-header">
             <h2>Leaderboard</h2>
-            <p>Top local scores on this browser.</p>
+            <p>Top local scores on this device.</p>
           </div>
 
           <ol class="leaderboard" id="leaderboardList"></ol>
@@ -106,34 +144,12 @@
 
           <ul class="controls-list">
             <li><strong>Space</strong>, <strong>Enter</strong>, click, or tap: flap / restart</li>
-            <li><strong>Start Game</strong>: begin a new round from the side panel</li>
+            <li><strong>Start Game</strong>: begin a new round right above the game</li>
+            <li><strong>Install App</strong>: add it to your home screen when supported</li>
             <li><strong>Log Out</strong>: switch to another local player</li>
           </ul>
         </section>
       </aside>
-
-      <section class="game-column">
-        <div class="card canvas-card">
-          <div class="canvas-head">
-            <div class="score-chip">
-              <span>Score</span>
-              <strong id="scoreValue">0</strong>
-            </div>
-            <div class="score-chip">
-              <span>Best</span>
-              <strong id="bestValue">0</strong>
-            </div>
-          </div>
-
-          <div class="canvas-frame">
-            <canvas id="gameCanvas" width="480" height="720" aria-label="Flappy Bird game area"></canvas>
-          </div>
-        </div>
-
-        <section class="card banner-card">
-          <p id="messageBanner" class="message-banner" data-tone="info">Create an account or log in to play.</p>
-        </section>
-      </section>
     </main>
   </div>
 
