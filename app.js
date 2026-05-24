@@ -14,6 +14,7 @@ const ui = {
   passwordInput: document.getElementById("passwordInput"),
   authSubmit: document.getElementById("authSubmit"),
   leaderboardList: document.getElementById("leaderboardList"),
+  leaderboardCard: document.getElementById("leaderboardCard"),
   welcomeHeading: document.getElementById("welcomeHeading"),
   playerSummary: document.getElementById("playerSummary"),
   profileBest: document.getElementById("profileBest"),
@@ -61,6 +62,10 @@ const installState = {
 
 const viewState = {
   immersive: false,
+};
+
+const launchState = {
+  handled: false,
 };
 
 const GAME = {
@@ -337,6 +342,29 @@ function focusGameArea() {
   }
 
   canvas.focus({ preventScroll: true });
+}
+
+function scrollElementIntoView(element) {
+  if (!element) {
+    return;
+  }
+
+  element.scrollIntoView({
+    behavior: prefersReducedMotion() ? "auto" : "smooth",
+    block: "start",
+  });
+}
+
+function clearLaunchParam() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("launch")) {
+    return;
+  }
+
+  url.searchParams.delete("launch");
+  const nextSearch = url.searchParams.toString();
+  const nextUrl = `${url.pathname}${nextSearch ? `?${nextSearch}` : ""}${url.hash}`;
+  window.history.replaceState({}, "", nextUrl);
 }
 
 function renderInstallBanner() {
@@ -651,6 +679,59 @@ function continueOnWeb() {
 function dismissInstallNotice() {
   installState.dismissed = true;
   renderAll();
+}
+
+function handleLaunchShortcut() {
+  if (launchState.handled) {
+    return;
+  }
+
+  const launch = new URLSearchParams(window.location.search).get("launch");
+  if (!launch) {
+    return;
+  }
+
+  launchState.handled = true;
+
+  if (launch === "play") {
+    clearLaunchParam();
+    if (getCurrentUser()) {
+      startGame();
+      return;
+    }
+
+    setMode("auth");
+    setMessage("Sign in first, then you can jump straight into a run.", "info");
+    renderAll();
+    requestAnimationFrame(() => {
+      scrollElementIntoView(ui.authCard);
+      ui.usernameInput.focus({ preventScroll: true });
+    });
+    return;
+  }
+
+  if (launch === "leaderboard") {
+    clearLaunchParam();
+    setMessage("Checking the leaderboard.", "info");
+    renderAll();
+    requestAnimationFrame(() => {
+      scrollElementIntoView(ui.leaderboardCard);
+    });
+    return;
+  }
+
+  if (launch === "account") {
+    clearLaunchParam();
+    setMode(getCurrentUser() ? "menu" : "auth");
+    setMessage(getCurrentUser() ? "Account ready. Pick up where you left off." : "Sign in or register to keep your scores saved.", "info");
+    renderAll();
+    requestAnimationFrame(() => {
+      scrollElementIntoView(getCurrentUser() ? ui.playerCard : ui.authCard);
+      if (!getCurrentUser()) {
+        ui.usernameInput.focus({ preventScroll: true });
+      }
+    });
+  }
 }
 
 function leavePlayView() {
@@ -1069,12 +1150,22 @@ window.addEventListener("resize", () => {
   renderAll();
 });
 
+window.addEventListener("offline", () => {
+  setMessage("You are offline. The cached app can still run, but new updates need a connection.", "error");
+});
+
+window.addEventListener("online", () => {
+  setMessage("Connection restored.", "success");
+});
+
 switchAuthMode("login");
 renderAll();
 
 if (!storageState.supported) {
   setMessage("Local storage is unavailable, so scores last only while this tab stays open.", "error");
 }
+
+handleLaunchShortcut();
 
 if ("serviceWorker" in navigator && window.isSecureContext) {
   window.addEventListener("load", () => {

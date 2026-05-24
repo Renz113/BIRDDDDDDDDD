@@ -21,6 +21,26 @@
     "entertainment"
   ],
   "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Play Now",
+      "short_name": "Play",
+      "description": "Jump straight back into Flappy Bird Club.",
+      "url": "./?launch=play"
+    },
+    {
+      "name": "View Leaderboard",
+      "short_name": "Leaderboard",
+      "description": "Check the best local pilots on this device.",
+      "url": "./?launch=leaderboard"
+    },
+    {
+      "name": "Open Account",
+      "short_name": "Account",
+      "description": "Sign in or switch to another local player.",
+      "url": "./?launch=account"
+    }
+  ],
   "icons": [
     {
       "src": "./icons/icon-192.png",

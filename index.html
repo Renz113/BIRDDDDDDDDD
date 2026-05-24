@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="A polished Flappy Bird web app with local accounts, saved scores, and quick mobile play.">
+  <meta name="application-name" content="Flappy Bird Club">
   <meta name="theme-color" content="#17324a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,6 +14,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -134,7 +136,7 @@
 
             <div class="canvas-actions">
               <button id="startButton" class="primary-button" type="button">Start Game</button>
-              <button id="installButton" class="secondary-button install-button is-hidden" type="button">Install App</button>
+              <button id="installButton" class="secondary-button install-button is-hidden" type="button">Install</button>
               <button id="exitViewButton" class="secondary-button utility-button is-hidden" type="button">Exit View</button>
             </div>
           </div>
@@ -152,7 +154,7 @@
       </section>
 
       <aside class="sidebar">
-        <section class="card">
+        <section class="card" id="leaderboardCard">
           <div class="card-header">
             <h2>Leaderboard</h2>
             <p>Top local scores on this device.</p>
@@ -177,6 +179,14 @@
       </aside>
     </main>
   </div>
+
+  <noscript>
+    <div class="page-shell">
+      <section class="card banner-card">
+        <p class="message-banner" data-tone="error">JavaScript is required to run Flappy Bird Club as an installable web app.</p>
+      </section>
+    </div>
+  </noscript>
 
   <script src="app.js"></script>
 </body>

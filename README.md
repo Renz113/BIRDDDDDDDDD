@@ -34,6 +34,9 @@ For install prompts on mobile, use `http://localhost` during testing or deploy t
 - persistent high scores saved in `localStorage`
 - a local leaderboard
 - keyboard, mouse, and touch controls
+- installable PWA behavior with a manifest and service worker
+- offline fallback support for repeat visits
+- app shortcuts for `Play`, `Leaderboard`, and `Account`
 
 ## GitHub Pages
 
@@ -62,3 +65,4 @@ python main.py
 
 - The web version stores users and scores only on the same device profile
 - The `pygame` version stores users in `data/users.json`
+- The mobile install prompt is controlled by the browser and appears only when the page qualifies as installable
