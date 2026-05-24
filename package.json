@@ -1,0 +1,11 @@
+{
+  "name": "flappy-bird-club",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static Node server for the Flappy Bird Club web app.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "check": "node --check server.js && node --check app.js"
+  }
+}

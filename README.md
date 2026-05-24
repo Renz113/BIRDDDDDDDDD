@@ -17,6 +17,15 @@ python -m http.server
 
 Then open `http://localhost:8000`.
 
+You can also run it as a simple Node web app:
+
+```bash
+npm install
+npm start
+```
+
+Then open `http://127.0.0.1:3000`.
+
 For install prompts on mobile, use `http://localhost` during testing or deploy to an `https://` URL.
 
 ### Web Features
