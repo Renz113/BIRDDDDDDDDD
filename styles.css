@@ -495,7 +495,7 @@ h1 {
   padding-left: 18px;
 }
 
-.controls-list li + li {
+.controls-list li+li {
   margin-top: 10px;
 }
 
@@ -616,9 +616,7 @@ body[data-mobile-play="immersive"] .game-column {
   inset: 0;
   z-index: 4;
   padding:
-    calc(10px + env(safe-area-inset-top))
-    10px
-    calc(10px + env(safe-area-inset-bottom));
+    calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, #8fd8ff 0%, #d9f2ff 42%, #fff8e2 100%);
 }
 
@@ -702,6 +700,7 @@ code {
 }
 
 @keyframes drift {
+
   0%,
   100% {
     transform: translateY(0);
@@ -751,6 +750,110 @@ code {
     width: min(calc(100% - 12px), 560px);
     top: calc(8px + env(safe-area-inset-top));
   }
+}
+
+/* iOS install overlay (Share -> Add to Home Screen) */
+.ios-install-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+}
+
+.ios-install-overlay.is-hidden {
+  display: none !important;
+}
+
+.ios-install-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 20, 34, 0.52);
+  backdrop-filter: blur(6px);
+}
+
+.ios-install-overlay-card {
+  position: relative;
+  width: min(560px, 100%);
+  border-radius: 26px;
+  background: rgba(39, 43, 47, 0.97);
+  color: #f5f8fb;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.ios-install-overlay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ios-install-overlay-close {
+  border: 0;
+  cursor: pointer;
+  color: rgba(245, 248, 251, 0.92);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+.ios-install-overlay-close:hover {
+  filter: brightness(1.08);
+}
+
+.ios-install-overlay-text {
+  margin: 0;
+  padding: 16px 18px 10px;
+  color: rgba(226, 234, 243, 0.86);
+  line-height: 1.5;
+}
+
+.ios-install-overlay-steps {
+  padding: 0 18px 16px;
+}
+
+.ios-install-step {
+  display: grid;
+  gap: 6px;
+  padding: 12px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ios-install-step-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(129, 216, 246, 0.15);
+  color: #81d8f6;
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.ios-install-overlay-done {
+  width: calc(100% - 36px);
+  margin: 0 18px 18px;
+  justify-self: center;
+}
+
+@media (max-width: 640px) {
+  .install-banner {
+    width: min(calc(100% - 12px), 560px);
+    top: calc(8px + env(safe-area-inset-top));
+  }
+
+
 
   .install-banner-card {
     padding: 12px 14px 12px 12px;
@@ -830,9 +933,7 @@ code {
 
   body[data-mobile-play="immersive"] .game-column {
     padding:
-      calc(8px + env(safe-area-inset-top))
-      8px
-      calc(8px + env(safe-area-inset-bottom));
+      calc(8px + env(safe-area-inset-top)) 8px calc(8px + env(safe-area-inset-bottom));
   }
 
   body[data-mobile-play="immersive"] .canvas-card {

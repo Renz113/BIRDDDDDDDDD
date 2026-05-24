@@ -35,6 +35,11 @@ const ui = {
   installBanner: document.getElementById("installBanner"),
   installBannerHost: document.getElementById("installBannerHost"),
   installBannerButton: document.getElementById("installBannerButton"),
+
+  iosInstallOverlay: document.getElementById("iosInstallOverlay"),
+  iosInstallOverlayDone: document.getElementById("iosInstallOverlayDone"),
+  iosInstallOverlayClose: document.querySelector(".ios-install-overlay-close"),
+  iosInstallOverlayBackdrop: document.querySelector(".ios-install-overlay-backdrop[data-close-overlay]"),
 };
 
 const state = {
@@ -622,9 +627,14 @@ async function handleInstallRequest() {
   }
 
   if (canSuggestIosInstall()) {
+    // iOS doesn't reliably expose beforeinstallprompt, so we show in-page instructions.
+    if (ui.iosInstallOverlay) {
+      ui.iosInstallOverlay.classList.remove("is-hidden");
+    }
     setMessage("On iPhone or iPad, tap Share and choose Add to Home Screen.", "info");
     return;
   }
+
 
   if (!window.isSecureContext) {
     setMessage("Install works only from localhost or an HTTPS deployment such as GitHub Pages.", "error");
@@ -1047,6 +1057,29 @@ ui.logoutButton.addEventListener("click", logout);
 ui.exitViewButton.addEventListener("click", leavePlayView);
 ui.installButton.addEventListener("click", handleInstallRequest);
 ui.installBannerButton.addEventListener("click", handleInstallRequest);
+
+// iOS install overlay interactions
+if (ui.iosInstallOverlayDone) {
+  ui.iosInstallOverlayDone.addEventListener("click", () => {
+    ui.iosInstallOverlay?.classList.add("is-hidden");
+    renderInstallCta();
+  });
+}
+
+if (ui.iosInstallOverlayClose) {
+  ui.iosInstallOverlayClose.addEventListener("click", () => {
+    ui.iosInstallOverlay?.classList.add("is-hidden");
+    renderInstallCta();
+  });
+}
+
+if (ui.iosInstallOverlayBackdrop) {
+  ui.iosInstallOverlayBackdrop.addEventListener("click", () => {
+    ui.iosInstallOverlay?.classList.add("is-hidden");
+    renderInstallCta();
+  });
+}
+
 
 canvas.addEventListener("pointerdown", () => {
   canvas.focus({ preventScroll: true });
