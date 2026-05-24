@@ -25,9 +25,6 @@ const ui = {
   userBadge: document.getElementById("userBadge"),
   modeBadge: document.getElementById("modeBadge"),
   messageBanner: document.getElementById("messageBanner"),
-  heroInstallPanel: document.getElementById("heroInstallPanel"),
-  heroInstallButton: document.getElementById("heroInstallButton"),
-  heroInstallNote: document.getElementById("heroInstallNote"),
   startButton: document.getElementById("startButton"),
   logoutButton: document.getElementById("logoutButton"),
   exitViewButton: document.getElementById("exitViewButton"),
@@ -258,6 +255,10 @@ function isLikelyMobileDevice() {
   return /android|iphone|ipad|ipod/.test(userAgent) || window.matchMedia("(max-width: 820px)").matches;
 }
 
+function hasRealInstallAction() {
+  return Boolean(installState.deferredPrompt) || canSuggestIosInstall();
+}
+
 function shouldUseImmersivePlayView() {
   return isLikelyMobileDevice();
 }
@@ -279,7 +280,7 @@ function shouldShowInstallBanner() {
     && !installState.installed
     && !viewState.immersive
     && isLikelyMobileDevice()
-    && (window.isSecureContext || canSuggestIosInstall());
+    && hasRealInstallAction();
 }
 
 function syncViewState() {
@@ -371,24 +372,16 @@ function renderInstallBanner() {
   ui.installBannerButton.disabled = isStandaloneMode() || installState.installed;
 }
 
-function renderHeroInstall(label, note, visible = true, disabled = false) {
-  ui.heroInstallPanel.classList.toggle("is-hidden", !visible);
-  ui.heroInstallButton.textContent = label;
-  ui.heroInstallButton.disabled = disabled;
-  ui.heroInstallNote.textContent = note;
-}
-
 function renderInstallCta() {
   if (isStandaloneMode() || installState.installed) {
-    renderHeroInstall("Installed", "This page is already running in app mode from your home screen.", false, true);
+    ui.installHint.classList.add("is-hidden");
     ui.installButton.classList.add("is-hidden");
     ui.installButton.disabled = true;
-    ui.installHint.textContent = "Installed app mode is ready for quick mobile play.";
     return;
   }
 
   if (installState.deferredPrompt) {
-    renderHeroInstall("Install", "Tap Install here to open the real native install popup.", true, false);
+    ui.installHint.classList.remove("is-hidden");
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Install";
@@ -397,7 +390,7 @@ function renderInstallCta() {
   }
 
   if (canSuggestIosInstall()) {
-    renderHeroInstall("Add To Home", "In Safari, tap Share and choose Add to Home Screen.", true, false);
+    ui.installHint.classList.remove("is-hidden");
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Add To Home";
@@ -405,19 +398,9 @@ function renderInstallCta() {
     return;
   }
 
-  if (isLikelyMobileDevice() && window.isSecureContext) {
-    renderHeroInstall("Install", "Stay on this home page for a moment, then tap Install when Chrome or Edge is ready.", true, false);
-    ui.installButton.classList.remove("is-hidden");
-    ui.installButton.disabled = false;
-    ui.installButton.textContent = "Install";
-    ui.installHint.textContent = "If the browser has not shown the popup yet, stay on the page and tap Install again.";
-    return;
-  }
-
-  renderHeroInstall("Install", "Open this site in Chrome, Edge, or Safari on your phone and then tap Install.", true, false);
+  ui.installHint.classList.add("is-hidden");
   ui.installButton.classList.add("is-hidden");
   ui.installButton.disabled = true;
-  ui.installHint.textContent = "Install is available from a secure mobile browser when supported.";
 }
 
 function setMessage(message, tone = "info") {
@@ -1057,7 +1040,6 @@ ui.registerTab.addEventListener("click", () => switchAuthMode("register"));
 ui.startButton.addEventListener("click", startGame);
 ui.logoutButton.addEventListener("click", logout);
 ui.exitViewButton.addEventListener("click", leavePlayView);
-ui.heroInstallButton.addEventListener("click", handleInstallRequest);
 ui.installButton.addEventListener("click", handleInstallRequest);
 ui.installBannerButton.addEventListener("click", handleInstallRequest);
 

@@ -169,13 +169,6 @@ body::before {
   max-width: 58ch;
 }
 
-.hero-side {
-  display: grid;
-  gap: 14px;
-  justify-items: end;
-  flex: 0 0 auto;
-}
-
 .hero-tag {
   margin: 0 0 10px;
   letter-spacing: 0.18em;
@@ -205,44 +198,6 @@ h1 {
   font-size: 1.02rem;
   line-height: 1.6;
   color: #31465f;
-}
-
-.hero-install {
-  width: min(100%, 320px);
-  padding: 16px 16px 18px;
-  border-radius: 26px;
-  border: 1px solid rgba(255, 255, 255, 0.58);
-  background:
-    linear-gradient(180deg, rgba(20, 47, 71, 0.9), rgba(32, 77, 111, 0.9)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  box-shadow: 0 20px 44px rgba(19, 37, 56, 0.18);
-  color: #f4f8fb;
-}
-
-.hero-install-tag {
-  margin: 0 0 8px;
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(196, 228, 249, 0.82);
-}
-
-.hero-install h2 {
-  margin: 0;
-  font-size: 1.65rem;
-  line-height: 1;
-  color: #fffdf7;
-}
-
-.hero-install-note {
-  margin: 12px 0 0;
-  color: rgba(233, 242, 249, 0.88);
-  line-height: 1.55;
-}
-
-.hero-install-button {
-  width: 100%;
-  margin-top: 16px;
 }
 
 .status-strip {
@@ -763,15 +718,6 @@ code {
     flex-direction: column;
   }
 
-  .hero-side {
-    width: 100%;
-    justify-items: stretch;
-  }
-
-  .hero-install {
-    width: 100%;
-  }
-
   .status-strip {
     justify-content: flex-start;
   }
@@ -838,15 +784,6 @@ code {
 
   .status-strip {
     gap: 10px;
-  }
-
-  .hero-install {
-    padding: 14px 14px 16px;
-    border-radius: 22px;
-  }
-
-  .hero-install h2 {
-    font-size: 1.45rem;
   }
 
   .status-pill,
