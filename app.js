@@ -25,6 +25,9 @@ const ui = {
   userBadge: document.getElementById("userBadge"),
   modeBadge: document.getElementById("modeBadge"),
   messageBanner: document.getElementById("messageBanner"),
+  heroInstallPanel: document.getElementById("heroInstallPanel"),
+  heroInstallButton: document.getElementById("heroInstallButton"),
+  heroInstallNote: document.getElementById("heroInstallNote"),
   startButton: document.getElementById("startButton"),
   logoutButton: document.getElementById("logoutButton"),
   exitViewButton: document.getElementById("exitViewButton"),
@@ -380,8 +383,16 @@ function renderInstallBanner() {
   ui.installBannerButton.disabled = isStandaloneMode();
 }
 
+function renderHeroInstall(label, note, visible = true, disabled = false) {
+  ui.heroInstallPanel.classList.toggle("is-hidden", !visible);
+  ui.heroInstallButton.textContent = label;
+  ui.heroInstallButton.disabled = disabled;
+  ui.heroInstallNote.textContent = note;
+}
+
 function renderInstallCta() {
   if (isStandaloneMode()) {
+    renderHeroInstall("Installed", "This page is already running in app mode from your home screen.", false, true);
     ui.installButton.classList.add("is-hidden");
     ui.installButton.disabled = true;
     ui.installHint.textContent = "Installed app mode is ready for quick mobile play.";
@@ -391,6 +402,7 @@ function renderInstallCta() {
   }
 
   if (installState.deferredPrompt) {
+    renderHeroInstall("Install", "Tap Install on the home page to open the real native app install popup.", true, false);
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Install";
@@ -401,6 +413,7 @@ function renderInstallCta() {
   }
 
   if (canSuggestIosInstall()) {
+    renderHeroInstall("Add To Home", "From this home page, tap Share and then Add to Home Screen in Safari.", true, false);
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Add To Home";
@@ -411,6 +424,7 @@ function renderInstallCta() {
   }
 
   if (isLikelyMobileDevice()) {
+    renderHeroInstall("Install Info", "Stay on the home page for a moment, then tap Install when the browser is ready.", true, false);
     ui.installButton.classList.remove("is-hidden");
     ui.installButton.disabled = false;
     ui.installButton.textContent = "Install Info";
@@ -420,6 +434,7 @@ function renderInstallCta() {
     return;
   }
 
+  renderHeroInstall("Install", "Use Chrome or Edge here on the home page. When the browser allows install, this button opens it.", true, false);
   ui.installButton.classList.add("is-hidden");
   ui.installButton.disabled = true;
   ui.installHint.textContent = "Install is available from a secure mobile link when supported.";
@@ -1087,6 +1102,7 @@ ui.registerTab.addEventListener("click", () => switchAuthMode("register"));
 ui.startButton.addEventListener("click", startGame);
 ui.logoutButton.addEventListener("click", logout);
 ui.exitViewButton.addEventListener("click", leavePlayView);
+ui.heroInstallButton.addEventListener("click", handleInstallRequest);
 ui.installButton.addEventListener("click", handleInstallRequest);
 ui.installBannerButton.addEventListener("click", handleInstallRequest);
 ui.installBannerClose.addEventListener("click", dismissInstallNotice);

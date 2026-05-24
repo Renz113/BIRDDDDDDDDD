@@ -51,18 +51,27 @@
         <p class="lede">Sign in, jump into a run, and keep your best score saved on this device.</p>
       </div>
 
-      <div class="status-strip">
-        <div class="status-pill">
-          <span class="status-label">Mode</span>
-          <strong id="modeBadge">Auth</strong>
-        </div>
-        <div class="status-pill">
-          <span class="status-label">Pilot</span>
-          <strong id="userBadge">Guest</strong>
-        </div>
-        <div class="status-pill">
-          <span class="status-label">Best</span>
-          <strong id="bestBadge">0</strong>
+      <div class="hero-side">
+        <section class="hero-install" id="heroInstallPanel" aria-live="polite">
+          <p class="hero-install-tag">Install From Home</p>
+          <h2>Make It Feel Like An App</h2>
+          <p id="heroInstallNote" class="hero-install-note">Tap Install here to open the native app install flow when your browser is ready.</p>
+          <button id="heroInstallButton" class="primary-button hero-install-button" type="button">Install</button>
+        </section>
+
+        <div class="status-strip">
+          <div class="status-pill">
+            <span class="status-label">Mode</span>
+            <strong id="modeBadge">Auth</strong>
+          </div>
+          <div class="status-pill">
+            <span class="status-label">Pilot</span>
+            <strong id="userBadge">Guest</strong>
+          </div>
+          <div class="status-pill">
+            <span class="status-label">Best</span>
+            <strong id="bestBadge">0</strong>
+          </div>
         </div>
       </div>
     </header>
@@ -172,7 +181,7 @@
           <ul class="controls-list">
             <li><strong>Space</strong>, <strong>Enter</strong>, click, or tap: flap / restart</li>
             <li><strong>Start Game</strong>: begin a new round right above the game</li>
-            <li><strong>Install App</strong>: add it to your home screen when supported</li>
+            <li><strong>Install</strong>: use the home-page install button or the game toolbar</li>
             <li><strong>Log Out</strong>: switch to another local player</li>
           </ul>
         </section>
