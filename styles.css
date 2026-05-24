@@ -88,19 +88,20 @@ body::before {
 
 .install-banner {
   position: fixed;
-  top: calc(10px + env(safe-area-inset-top));
+  bottom: calc(20px + env(safe-area-inset-bottom));
   left: 50%;
   z-index: 6;
   width: min(calc(100% - 16px), 560px);
   transform: translateX(-50%);
+  animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .install-banner-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 14px;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 12px;
   align-items: center;
-  padding: 14px 18px 14px 14px;
+  padding: 12px 14px;
   border-radius: 26px;
   background: rgba(39, 43, 47, 0.97);
   color: #f5f8fb;
@@ -148,6 +149,19 @@ body::before {
   filter: brightness(1.06);
 }
 
+.install-banner-close {
+  border: 0;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+}
+
 .hero {
   display: flex;
   justify-content: space-between;
@@ -185,7 +199,7 @@ h2 {
 
 h1 {
   margin: 0;
-  font-size: clamp(2.4rem, 4.2vw, 4.4rem);
+  font-size: clamp(2.2rem, 4.2vw, 4.4rem);
   line-height: 0.94;
   color: #17324a;
   text-shadow: 0 4px 0 rgba(255, 255, 255, 0.3);
@@ -512,6 +526,7 @@ h1 {
   justify-content: space-between;
   gap: 18px;
   align-items: flex-start;
+  margin-top: 14px;
 }
 
 .canvas-head {
@@ -546,7 +561,6 @@ h1 {
   position: relative;
   display: grid;
   place-items: center;
-  margin-top: 14px;
   border-radius: 28px;
   padding: 12px;
   background:
@@ -625,14 +639,15 @@ body[data-mobile-play="immersive"] .canvas-card {
   padding: 10px;
   border-radius: 24px;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr auto;
   align-content: start;
 }
 
 body[data-mobile-play="immersive"] .canvas-toolbar {
   position: relative;
   z-index: 2;
-  margin-bottom: 8px;
+  margin-top: 8px;
+  margin-bottom: 0;
 }
 
 body[data-mobile-play="immersive"] .canvas-head {
@@ -756,10 +771,11 @@ code {
 .ios-install-overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
-  display: grid;
-  place-items: center;
-  padding: 14px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
 }
 
 .ios-install-overlay.is-hidden {
@@ -771,17 +787,24 @@ code {
   inset: 0;
   background: rgba(10, 20, 34, 0.52);
   backdrop-filter: blur(6px);
+  pointer-events: auto;
 }
 
 .ios-install-overlay-card {
-  position: relative;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: min(560px, 100%);
-  border-radius: 26px;
+  border-radius: 26px 26px 0 0;
   background: rgba(39, 43, 47, 0.97);
   color: #f5f8fb;
-  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
 }
 
 .ios-install-overlay-head {
@@ -850,7 +873,7 @@ code {
 @media (max-width: 640px) {
   .install-banner {
     width: min(calc(100% - 12px), 560px);
-    top: calc(8px + env(safe-area-inset-top));
+    bottom: calc(12px + env(safe-area-inset-bottom));
   }
 
 
@@ -873,16 +896,6 @@ code {
   .page-shell {
     width: min(100% - 20px, 1320px);
     padding-top: 14px;
-  }
-
-  .hero,
-  .card {
-    padding: 16px;
-    border-radius: 24px;
-  }
-
-  h1 {
-    font-size: 2.7rem;
   }
 
   .status-strip {

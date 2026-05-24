@@ -36,6 +36,8 @@ const ui = {
   installBannerHost: document.getElementById("installBannerHost"),
   installBannerButton: document.getElementById("installBannerButton"),
 
+  webviewOverlay: document.getElementById("webviewOverlay"),
+  webviewOverlayClose: document.getElementById("webviewOverlayClose"),
   iosInstallOverlay: document.getElementById("iosInstallOverlay"),
   iosInstallOverlayDone: document.getElementById("iosInstallOverlayDone"),
   iosInstallOverlayClose: document.querySelector(".ios-install-overlay-close"),
@@ -58,6 +60,7 @@ const storageState = {
 const installState = {
   deferredPrompt: null,
   installed: false,
+  dismissed: localStorage.getItem("flappy_install_dismissed") === "true",
 };
 
 const viewState = {
@@ -244,6 +247,12 @@ function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function isInAppBrowser() {
+  const ua = window.navigator.userAgent || window.navigator.vendor;
+  const inAppBrowsers = ["FBAN", "FBAV", "Instagram", "Messenger", "Line", "Twitter"];
+  return inAppBrowsers.some(term => ua.includes(term));
+}
+
 function isStandaloneMode() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
@@ -281,8 +290,14 @@ function currentInstallActionLabel() {
 }
 
 function shouldShowInstallBanner() {
-  return !isStandaloneMode()
+  // Don't show the banner if they are in Messenger/Instagram, 
+  // show the webview overlay instead via renderAll.
+  const isRestrictedBrowser = isInAppBrowser();
+
+  return !isRestrictedBrowser
+    && !isStandaloneMode()
     && !installState.installed
+    && !installState.dismissed
     && !viewState.immersive
     && isLikelyMobileDevice()
     && hasRealInstallAction();
@@ -366,15 +381,34 @@ function clearLaunchParam() {
 
 function renderInstallBanner() {
   const visible = shouldShowInstallBanner();
+  if (!ui.installBanner) return;
+
   ui.installBanner.classList.toggle("is-hidden", !visible);
 
   if (!visible) {
     return;
   }
 
+  if (!ui.installBannerHost || !ui.installBannerButton) return;
+
   ui.installBannerHost.textContent = window.location.hostname === "localhost" ? "localhost" : window.location.hostname || "Web App";
   ui.installBannerButton.textContent = currentInstallActionLabel();
   ui.installBannerButton.disabled = isStandaloneMode() || installState.installed;
+}
+
+function dismissInstallBanner() {
+  installState.dismissed = true;
+  if (storageState.supported) {
+    localStorage.setItem("flappy_install_dismissed", "true");
+  }
+  renderInstallBanner();
+}
+
+function renderWebviewOverlay() {
+  if (!ui.webviewOverlay) return;
+  // Only show if in an in-app browser and not already installed/standalone
+  const visible = isInAppBrowser() && !isStandaloneMode();
+  ui.webviewOverlay.classList.toggle("is-hidden", !visible);
 }
 
 function renderInstallCta() {
@@ -532,6 +566,7 @@ function renderAll() {
   renderLeaderboard();
   renderControls();
   renderInstallBanner();
+  renderWebviewOverlay();
 }
 
 function switchAuthMode(mode) {
@@ -1111,6 +1146,10 @@ window.addEventListener("beforeinstallprompt", (event) => {
   installState.deferredPrompt = event;
   installState.installed = false;
   renderAll();
+  // Auto-show banner after a short delay for realism on Android
+  setTimeout(() => {
+    renderInstallBanner();
+  }, 1500);
 });
 
 window.addEventListener("appinstalled", () => {
@@ -1153,6 +1192,13 @@ window.addEventListener("online", () => {
 
 switchAuthMode("login");
 renderAll();
+
+// Realistic automatic prompt entry
+setTimeout(() => {
+  if (shouldShowInstallBanner()) {
+    renderInstallBanner();
+  }
+}, 3000);
 
 if (!storageState.supported) {
   setMessage("Local storage is unavailable, so scores last only while this tab stays open.", "error");

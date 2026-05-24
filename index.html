@@ -31,6 +31,7 @@
         <span id="installBannerHost">Web App</span>
       </div>
       <button id="installBannerButton" class="install-banner-action" type="button">Install</button>
+      <button id="closeInstallBanner" class="install-banner-close" type="button" aria-label="Dismiss">✕</button>
     </div>
   </div>
 
@@ -56,6 +57,31 @@
       <button class="secondary-button ios-install-overlay-done" id="iosInstallOverlayDone" type="button">
         Got it
       </button>
+    </div>
+  </div>
+
+  <div class="ios-install-overlay is-hidden" id="webviewOverlay" role="dialog" aria-modal="true">
+    <div class="ios-install-overlay-backdrop"></div>
+    <div class="ios-install-overlay-card">
+      <div class="ios-install-overlay-head">
+        <strong>Open in Browser</strong>
+        <button id="webviewOverlayClose" class="ios-install-overlay-close" type="button">✕</button>
+      </div>
+      <p class="ios-install-overlay-text">
+        It looks like you're using the <strong>Messenger</strong> or <strong>In-App</strong> browser.
+        <br><br>
+        To install this game and save your scores, you need to open it in a real browser:
+      </p>
+      <div class="ios-install-overlay-steps">
+        <div class="ios-install-step">
+          <span class="ios-install-step-badge">Android</span>
+          <span>Tap the <strong>three dots (⋮)</strong> and select <strong>Open in Chrome</strong>.</span>
+        </div>
+        <div class="ios-install-step" style="margin-top: 8px;">
+          <span class="ios-install-step-badge" style="background: rgba(255,255,255,0.1); color: white;">iOS</span>
+          <span>Tap the <strong>Safari</strong> icon in the corner.</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -141,6 +167,10 @@
     <main class="layout">
       <section class="game-column" id="gameColumn">
         <div class="card canvas-card">
+          <div class="canvas-frame" id="gameFrame">
+            <canvas id="gameCanvas" width="480" height="720" tabindex="0" aria-label="Flappy Bird game area"></canvas>
+          </div>
+
           <div class="canvas-toolbar">
             <div class="canvas-head">
               <div class="score-chip">
@@ -164,10 +194,6 @@
 
           <p id="installHint" class="install-hint">Install on your home screen for faster mobile access when your device
             supports it.</p>
-
-          <div class="canvas-frame" id="gameFrame">
-            <canvas id="gameCanvas" width="480" height="720" tabindex="0" aria-label="Flappy Bird game area"></canvas>
-          </div>
         </div>
 
         <section class="card banner-card">

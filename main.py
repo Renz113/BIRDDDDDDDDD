@@ -90,9 +90,11 @@ class Button:
 
     def draw(self, surface: pygame.Surface, font: pygame.font.Font) -> None:
         hovered = self.rect.collidepoint(pygame.mouse.get_pos())
-        fill = tuple(min(255, channel + 12) for channel in self.fill) if hovered else self.fill
+        fill = tuple(min(255, channel + 12)
+                     for channel in self.fill) if hovered else self.fill
         shadow_rect = self.rect.move(0, 4)
-        pygame.draw.rect(surface, ACCENT_DARK if self.fill == ACCENT else (132, 150, 174), shadow_rect, border_radius=16)
+        pygame.draw.rect(surface, ACCENT_DARK if self.fill == ACCENT else (
+            132, 150, 174), shadow_rect, border_radius=16)
         pygame.draw.rect(surface, fill, self.rect, border_radius=16)
         label_surf = font.render(self.label, True, self.text_color)
         surface.blit(label_surf, label_surf.get_rect(center=self.rect.center))
@@ -116,14 +118,17 @@ class Bird:
 
     @property
     def rect(self) -> pygame.Rect:
-        return pygame.Rect(int(self.x - self.width / 2), int(self.y - self.height / 2), self.width, self.height)
+        # Shrink hit-box by 4px on each side to make the game feel more fair
+        padding = 4
+        return pygame.Rect(int(self.x - self.width / 2) + padding, int(self.y - self.height / 2) + padding, self.width - (padding * 2), self.height - (padding * 2))
 
     def draw(self, surface: pygame.Surface) -> None:
         angle = clamp(-self.velocity * 4, -28, 28)
         bird_surface = pygame.Surface((56, 44), pygame.SRCALPHA)
         pygame.draw.ellipse(bird_surface, (252, 221, 68), (8, 8, 34, 24))
         pygame.draw.ellipse(bird_surface, (246, 183, 39), (14, 18, 22, 14))
-        pygame.draw.polygon(bird_surface, ACCENT, [(38, 20), (52, 16), (52, 26)])
+        pygame.draw.polygon(bird_surface, ACCENT, [
+                            (38, 20), (52, 16), (52, 26)])
         pygame.draw.circle(bird_surface, WHITE, (28, 16), 5)
         pygame.draw.circle(bird_surface, BLACK, (30, 16), 2)
         rotated = pygame.transform.rotate(bird_surface, angle)
@@ -141,9 +146,11 @@ class PipePair:
         self.x -= PIPE_SPEED
 
     def collides(self, bird_rect: pygame.Rect) -> bool:
-        top_rect = pygame.Rect(int(self.x), 0, PIPE_WIDTH, self.gap_y - PIPE_GAP // 2)
+        top_rect = pygame.Rect(int(self.x), 0, PIPE_WIDTH,
+                               self.gap_y - PIPE_GAP // 2)
         bottom_y = self.gap_y + PIPE_GAP // 2
-        bottom_rect = pygame.Rect(int(self.x), bottom_y, PIPE_WIDTH, HEIGHT - GROUND_HEIGHT - bottom_y)
+        bottom_rect = pygame.Rect(
+            int(self.x), bottom_y, PIPE_WIDTH, HEIGHT - GROUND_HEIGHT - bottom_y)
         return bird_rect.colliderect(top_rect) or bird_rect.colliderect(bottom_rect)
 
     def off_screen(self) -> bool:
@@ -161,13 +168,15 @@ class PipePair:
         bottom_height = HEIGHT - GROUND_HEIGHT - bottom_y
 
         top_rect = pygame.Rect(int(self.x), 0, PIPE_WIDTH, top_height)
-        bottom_rect = pygame.Rect(int(self.x), bottom_y, PIPE_WIDTH, bottom_height)
+        bottom_rect = pygame.Rect(
+            int(self.x), bottom_y, PIPE_WIDTH, bottom_height)
 
         for rect in (top_rect, bottom_rect):
             pygame.draw.rect(surface, PIPE_DARK, rect, border_radius=10)
             inner = rect.inflate(-12, 0)
             pygame.draw.rect(surface, PIPE_LIGHT, inner, border_radius=8)
-            lip = pygame.Rect(rect.x - 6, rect.bottom - 20 if rect is top_rect else rect.y, PIPE_WIDTH + 12, 20)
+            lip = pygame.Rect(rect.x - 6, rect.bottom -
+                              20 if rect is top_rect else rect.y, PIPE_WIDTH + 12, 20)
             pygame.draw.rect(surface, PIPE_DARK, lip, border_radius=8)
 
 
@@ -186,16 +195,24 @@ class FlappyBirdApp:
         self.body_font = pygame.font.SysFont("trebuchetms", 22)
         self.small_font = pygame.font.SysFont("trebuchetms", 18)
 
-        self.username_box = InputBox(pygame.Rect(110, 250, 260, 54), "Username")
-        self.password_box = InputBox(pygame.Rect(110, 340, 260, 54), "Password", password=True)
+        self.username_box = InputBox(
+            pygame.Rect(110, 250, 260, 54), "Username")
+        self.password_box = InputBox(pygame.Rect(
+            110, 340, 260, 54), "Password", password=True)
         self.username_box.active = True
 
-        self.submit_button = Button(pygame.Rect(110, 420, 260, 54), "Log In", ACCENT)
-        self.toggle_button = Button(pygame.Rect(110, 490, 260, 46), "Need an account? Register", (85, 111, 147))
-        self.start_button = Button(pygame.Rect(140, 420, 200, 58), "Start Game", ACCENT)
-        self.logout_button = Button(pygame.Rect(140, 490, 200, 46), "Log Out", (85, 111, 147))
-        self.retry_button = Button(pygame.Rect(140, 450, 200, 52), "Play Again", ACCENT)
-        self.menu_button = Button(pygame.Rect(140, 515, 200, 46), "Back To Menu", (85, 111, 147))
+        self.submit_button = Button(pygame.Rect(
+            110, 420, 260, 54), "Log In", ACCENT)
+        self.toggle_button = Button(pygame.Rect(
+            110, 490, 260, 46), "Need an account? Register", (85, 111, 147))
+        self.start_button = Button(pygame.Rect(
+            140, 420, 200, 58), "Start Game", ACCENT)
+        self.logout_button = Button(pygame.Rect(
+            140, 490, 200, 46), "Log Out", (85, 111, 147))
+        self.retry_button = Button(pygame.Rect(
+            140, 450, 200, 52), "Play Again", ACCENT)
+        self.menu_button = Button(pygame.Rect(
+            140, 515, 200, 46), "Back To Menu", (85, 111, 147))
 
         self.auth_mode = "login"
         self.state = "auth"
@@ -231,7 +248,8 @@ class FlappyBirdApp:
 
     def refresh_profile(self) -> None:
         if self.current_user_key:
-            self.current_profile = self.storage.get_profile(self.current_user_key)
+            self.current_profile = self.storage.get_profile(
+                self.current_user_key)
         else:
             self.current_profile = None
         self.leaderboard = self.storage.get_leaderboard()
@@ -247,9 +265,11 @@ class FlappyBirdApp:
         password = self.password_box.text
 
         if self.auth_mode == "register":
-            success, message, user_key = self.storage.register_user(username, password)
+            success, message, user_key = self.storage.register_user(
+                username, password)
         else:
-            success, message, user_key = self.storage.authenticate_user(username, password)
+            success, message, user_key = self.storage.authenticate_user(
+                username, password)
 
         if success and user_key:
             self.current_user_key = user_key
@@ -281,9 +301,11 @@ class FlappyBirdApp:
     def finish_game(self) -> None:
         self.state = "game_over"
         if self.current_user_key:
-            self.current_profile = self.storage.update_score(self.current_user_key, self.score)
+            self.current_profile = self.storage.update_score(
+                self.current_user_key, self.score)
         self.leaderboard = self.storage.get_leaderboard()
-        best = 0 if not self.current_profile else int(self.current_profile.get("best_score", 0))
+        best = 0 if not self.current_profile else int(
+            self.current_profile.get("best_score", 0))
         self.set_message(f"Round finished. Score: {self.score} | Best: {best}")
 
     def handle_auth_event(self, event: pygame.event.Event) -> None:
@@ -398,23 +420,29 @@ class FlappyBirdApp:
             wrapped_x = int(x % (WIDTH + 220)) - 110
             cloud_surface = pygame.Surface((w + 30, h + 20), pygame.SRCALPHA)
             pygame.draw.ellipse(cloud_surface, CLOUD, (0, 6, w // 2, h))
-            pygame.draw.ellipse(cloud_surface, CLOUD, (w // 4, 0, w // 2, h + 8))
+            pygame.draw.ellipse(cloud_surface, CLOUD,
+                                (w // 4, 0, w // 2, h + 8))
             pygame.draw.ellipse(cloud_surface, CLOUD, (w // 2, 6, w // 2, h))
             self.screen.blit(cloud_surface, (wrapped_x, y))
 
     def draw_ground(self) -> None:
-        ground_rect = pygame.Rect(0, HEIGHT - GROUND_HEIGHT, WIDTH, GROUND_HEIGHT)
+        ground_rect = pygame.Rect(
+            0, HEIGHT - GROUND_HEIGHT, WIDTH, GROUND_HEIGHT)
         pygame.draw.rect(self.screen, GROUND, ground_rect)
-        pygame.draw.rect(self.screen, (201, 164, 96), (0, HEIGHT - GROUND_HEIGHT, WIDTH, 14))
+        pygame.draw.rect(self.screen, (201, 164, 96),
+                         (0, HEIGHT - GROUND_HEIGHT, WIDTH, 14))
 
         for i in range(-1, WIDTH // 32 + 2):
             x = i * 32 - self.floor_offset
-            pygame.draw.line(self.screen, (189, 148, 84), (x, HEIGHT - 58), (x + 20, HEIGHT - 42), 3)
-            pygame.draw.line(self.screen, (238, 208, 146), (x + 12, HEIGHT - 28), (x + 28, HEIGHT - 12), 2)
+            pygame.draw.line(self.screen, (189, 148, 84),
+                             (x, HEIGHT - 58), (x + 20, HEIGHT - 42), 3)
+            pygame.draw.line(self.screen, (238, 208, 146),
+                             (x + 12, HEIGHT - 28), (x + 28, HEIGHT - 12), 2)
 
     def draw_panel(self, rect: pygame.Rect) -> None:
         pygame.draw.rect(self.screen, PANEL, rect, border_radius=24)
-        pygame.draw.rect(self.screen, PANEL_BORDER, rect, width=4, border_radius=24)
+        pygame.draw.rect(self.screen, PANEL_BORDER,
+                         rect, width=4, border_radius=24)
 
     def draw_auth(self) -> None:
         panel = pygame.Rect(50, 120, 380, 470)
@@ -425,16 +453,20 @@ class FlappyBirdApp:
 
         title_surf = self.title_font.render(title, True, TEXT_DARK)
         subtitle_surf = self.small_font.render(subtitle, True, (83, 95, 120))
-        self.screen.blit(title_surf, title_surf.get_rect(center=(WIDTH // 2, 175)))
-        self.screen.blit(subtitle_surf, subtitle_surf.get_rect(center=(WIDTH // 2, 210)))
+        self.screen.blit(title_surf, title_surf.get_rect(
+            center=(WIDTH // 2, 175)))
+        self.screen.blit(subtitle_surf, subtitle_surf.get_rect(
+            center=(WIDTH // 2, 210)))
 
         self.username_box.draw(self.screen, self.small_font, self.body_font)
         self.password_box.draw(self.screen, self.small_font, self.body_font)
         self.submit_button.draw(self.screen, self.body_font)
         self.toggle_button.draw(self.screen, self.small_font)
 
-        hint = self.small_font.render("Tip: use Tab to move between fields.", True, (108, 116, 134))
-        message = self.small_font.render(self.message, True, self.message_color)
+        hint = self.small_font.render(
+            "Tip: use Tab to move between fields.", True, (108, 116, 134))
+        message = self.small_font.render(
+            self.message, True, self.message_color)
         self.screen.blit(hint, hint.get_rect(center=(WIDTH // 2, 570)))
         self.screen.blit(message, message.get_rect(center=(WIDTH // 2, 605)))
 
@@ -449,9 +481,12 @@ class FlappyBirdApp:
             best_score = int(self.current_profile.get("best_score", 0))
 
         title = self.title_font.render("Flappy Bird", True, TEXT_DARK)
-        hello = self.medium_font.render(f"Welcome, {name}", True, (78, 98, 130))
-        best = self.body_font.render(f"Best score: {best_score}", True, TEXT_DARK)
-        tip = self.small_font.render("Press Enter/Space or use the button to fly.", True, (105, 117, 139))
+        hello = self.medium_font.render(
+            f"Welcome, {name}", True, (78, 98, 130))
+        best = self.body_font.render(
+            f"Best score: {best_score}", True, TEXT_DARK)
+        tip = self.small_font.render(
+            "Press Enter/Space or use the button to fly.", True, (105, 117, 139))
 
         self.screen.blit(title, title.get_rect(center=(WIDTH // 2, 150)))
         self.screen.blit(hello, hello.get_rect(center=(WIDTH // 2, 195)))
@@ -461,12 +496,15 @@ class FlappyBirdApp:
         self.start_button.draw(self.screen, self.body_font)
         self.logout_button.draw(self.screen, self.small_font)
 
-        leaderboard_title = self.medium_font.render("Top Pilots", True, TEXT_DARK)
+        leaderboard_title = self.medium_font.render(
+            "Top Pilots", True, TEXT_DARK)
         self.screen.blit(leaderboard_title, (140, 305))
 
         leaderboard_panel = pygame.Rect(100, 350, 280, 145)
-        pygame.draw.rect(self.screen, WHITE, leaderboard_panel, border_radius=16)
-        pygame.draw.rect(self.screen, PANEL_BORDER, leaderboard_panel, width=2, border_radius=16)
+        pygame.draw.rect(self.screen, WHITE,
+                         leaderboard_panel, border_radius=16)
+        pygame.draw.rect(self.screen, PANEL_BORDER,
+                         leaderboard_panel, width=2, border_radius=16)
 
         if self.leaderboard:
             for index, user in enumerate(self.leaderboard[:5], start=1):
@@ -476,12 +514,16 @@ class FlappyBirdApp:
                 score_surf = self.body_font.render(score, True, ACCENT_DARK)
                 y = 365 + (index - 1) * 26
                 self.screen.blit(name_surf, (118, y))
-                self.screen.blit(score_surf, score_surf.get_rect(topright=(360, y)))
+                self.screen.blit(
+                    score_surf, score_surf.get_rect(topright=(360, y)))
         else:
-            empty = self.body_font.render("No scores yet. Be the first.", True, (108, 116, 134))
-            self.screen.blit(empty, empty.get_rect(center=leaderboard_panel.center))
+            empty = self.body_font.render(
+                "No scores yet. Be the first.", True, (108, 116, 134))
+            self.screen.blit(empty, empty.get_rect(
+                center=leaderboard_panel.center))
 
-        message = self.small_font.render(self.message, True, self.message_color)
+        message = self.small_font.render(
+            self.message, True, self.message_color)
         self.screen.blit(message, message.get_rect(center=(WIDTH // 2, 585)))
 
     def draw_playing(self) -> None:
@@ -490,15 +532,18 @@ class FlappyBirdApp:
         self.bird.draw(self.screen)
 
         score_panel = pygame.Rect(18, 18, 120, 52)
-        pygame.draw.rect(self.screen, (255, 252, 243, 230), score_panel, border_radius=16)
-        pygame.draw.rect(self.screen, PANEL_BORDER, score_panel, width=2, border_radius=16)
+        pygame.draw.rect(self.screen, (255, 252, 243, 230),
+                         score_panel, border_radius=16)
+        pygame.draw.rect(self.screen, PANEL_BORDER,
+                         score_panel, width=2, border_radius=16)
 
         label = self.small_font.render("SCORE", True, (116, 120, 130))
         score_surf = self.big_font.render(str(self.score), True, TEXT_DARK)
         self.screen.blit(label, (34, 24))
         self.screen.blit(score_surf, (34, 38))
 
-        hint = self.small_font.render("Space or click to flap", True, (96, 108, 130))
+        hint = self.small_font.render(
+            "Space or click to flap", True, (96, 108, 130))
         self.screen.blit(hint, hint.get_rect(topright=(WIDTH - 18, 24)))
 
     def draw_game_over(self) -> None:
@@ -514,10 +559,14 @@ class FlappyBirdApp:
         self.draw_panel(panel)
 
         title = self.big_font.render("Round Over", True, TEXT_DARK)
-        score = self.medium_font.render(f"Score: {self.score}", True, ACCENT_DARK)
-        best_score = 0 if not self.current_profile else int(self.current_profile.get("best_score", 0))
-        best = self.body_font.render(f"Personal best: {best_score}", True, TEXT_DARK)
-        message = self.small_font.render("Press Enter/Space to try again.", True, (101, 115, 138))
+        score = self.medium_font.render(
+            f"Score: {self.score}", True, ACCENT_DARK)
+        best_score = 0 if not self.current_profile else int(
+            self.current_profile.get("best_score", 0))
+        best = self.body_font.render(
+            f"Personal best: {best_score}", True, TEXT_DARK)
+        message = self.small_font.render(
+            "Press Enter/Space to try again.", True, (101, 115, 138))
 
         self.screen.blit(title, title.get_rect(center=(WIDTH // 2, 215)))
         self.screen.blit(score, score.get_rect(center=(WIDTH // 2, 265)))
@@ -527,13 +576,15 @@ class FlappyBirdApp:
         self.retry_button.draw(self.screen, self.body_font)
         self.menu_button.draw(self.screen, self.small_font)
 
-        leaderboard_title = self.medium_font.render("Leaderboard", True, TEXT_DARK)
+        leaderboard_title = self.medium_font.render(
+            "Leaderboard", True, TEXT_DARK)
         self.screen.blit(leaderboard_title, (145, 385))
 
         for index, user in enumerate(self.leaderboard[:3], start=1):
             line = f"{index}. {user['display_name']} - {user.get('best_score', 0)}"
             line_surf = self.body_font.render(line, True, (75, 89, 114))
-            self.screen.blit(line_surf, line_surf.get_rect(center=(WIDTH // 2, 410 + index * 30)))
+            self.screen.blit(line_surf, line_surf.get_rect(
+                center=(WIDTH // 2, 410 + index * 30)))
 
     def draw(self) -> None:
         self.draw_background()

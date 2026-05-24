@@ -1,0 +1,5 @@
+Planned changes:
+- Add overlay element in index.html (install overlay)
+- Add CSS in styles.css for overlay
+- Update app.js to show overlay on iOS CTA click
+

@@ -58,6 +58,11 @@ function fileHeaders(filePath) {
 }
 
 const server = http.createServer((request, response) => {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    send(response, 405, "Method Not Allowed");
+    return;
+  }
+
   if (!request.url) {
     send(response, 400, "Bad Request");
     return;
